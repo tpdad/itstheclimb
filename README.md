@@ -4,7 +4,7 @@
 
 ## 🏔️ Overview
 
-**It's the Climb** is a custom web application built for the **DB4 Sports** fantasy football dynasty league. It provides real-time league standings, dynasty rankings, constitution management, and historical records across three competitive tiers.
+**It's the Climb** is a custom web application built for the **DB4 Sports** fantasy football dynasty league. It provides real-time league standings, dynasty rankings, constitution management, and h[...]
 
 ### Key Features
 
@@ -24,7 +24,7 @@
 
 The portal is live at:
 ```
-https://thephilosopherdan-dot.github.io/itstheclimb/
+https://tpdad.github.io/itstheclimb/
 ```
 
 ### Technology Stack
@@ -187,7 +187,7 @@ After each season:
 
 ```bash
 # Clone the repo
-git clone https://github.com/thephilosopherdan-dot/itstheclimb.git
+git clone https://github.com/tpdad/itstheclimb.git
 cd itstheclimb
 
 # Serve locally (Python 3)
@@ -264,7 +264,7 @@ To update league data:
 5. Push: `git push origin update/dynasty-2026`
 6. Open a Pull Request
 
-**For league members:** Contact @thephilosopherdan-dot with updates.
+**For league members:** Contact @tpdad with updates.
 
 ---
 
@@ -283,7 +283,7 @@ For issues or questions:
 
 1. Check the **Constitution** tab for league rules
 2. Review the Sleeper API docs: https://docs.sleeper.app
-3. Contact Commissioner: Dan Frank (@philosopherdan-dot on GitHub)
+3. Contact Current Manager: @tpdad on GitHub
 
 ---
 
@@ -293,6 +293,6 @@ This project is custom-built for DB4 Sports. Feel free to clone and adapt for yo
 
 ---
 
-**Built with ⛏️ by @thephilosopherdan-dot**  
+**Now Maintained by @tpdad**  
 **Last Updated:** May 12, 2026  
 **League:** It's the Climb (1st Dynasty, Season 4)

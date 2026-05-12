@@ -2,7 +2,7 @@
 
 ## Current Status
 
-✅ **Live at:** https://thephilosopherdan-dot.github.io/itstheclimb/
+✅ **Live at:** https://tpdad.github.io/itstheclimb/
 
 The site is automatically deployed whenever you push changes to the `main` branch.
 
@@ -14,7 +14,7 @@ The site is automatically deployed whenever you push changes to the `main` branc
 
 ```bash
 # Clone if you haven't already
-git clone https://github.com/thephilosopherdan-dot/itstheclimb.git
+git clone https://github.com/tpdad/itstheclimb.git
 cd itstheclimb
 
 # Create a feature branch
@@ -41,7 +41,7 @@ git push origin main
 
 GitHub Pages will automatically rebuild and deploy within seconds. Your changes will be live at:
 ```
-https://thephilosopherdan-dot.github.io/itstheclimb/
+https://tpdad.github.io/itstheclimb/
 ```
 
 ---
@@ -55,7 +55,7 @@ https://thephilosopherdan-dot.github.io/itstheclimb/
 
 ### To Verify Settings:
 
-1. Go to: https://github.com/thephilosopherdan-dot/itstheclimb/settings/pages
+1. Go to: https://github.com/tpdad/itstheclimb/settings/pages
 2. Confirm:
    - ✅ Source: `Deploy from a branch`
    - ✅ Branch: `main / (root)`
@@ -87,7 +87,7 @@ Tailwind, Font Awesome, and Google Fonts are cached by their CDNs. Updates typic
 ### Site Not Updating
 
 1. **Check deployment status:**
-   - Go to: https://github.com/thephilosopherdan-dot/itstheclimb/actions
+   - Go to: https://github.com/tpdad/itstheclimb/actions
    - Look for recent workflow runs
    - If failed, check error log
 
@@ -149,7 +149,7 @@ To migrate to a new repository:
 
 ```bash
 # Mirror the repository
-git clone --mirror https://github.com/thephilosopherdan-dot/itstheclimb.git
+git clone --mirror https://github.com/tpdad/itstheclimb.git
 cd itstheclimb.git
 git push --mirror https://github.com/NEW_OWNER/NEW_REPO.git
 ```
@@ -158,6 +158,6 @@ git push --mirror https://github.com/NEW_OWNER/NEW_REPO.git
 
 ## Contact
 
-For deployment issues, contact: @thephilosopherdan-dot
+For deployment issues, contact: @tpdad
 
 **Last Updated:** May 12, 2026
