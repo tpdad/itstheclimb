@@ -1,0 +1,13 @@
+{
+  "DYNASTY_RECORDS": [
+    { "label": "Single Game High Score",   "owner": "Point Pleasant Mothmen",  "val": "234.6" },
+    { "label": "Longest Winning Streak",   "owner": "Southie Thunder Buddies", "val": "14 Games" },
+    { "label": "Single Season W/L",        "owner": "Southie Thunder Buddies", "val": "15-1" },
+    { "label": "Season Long High Score",   "owner": "Southie Thunder Buddies", "val": "2442.99" }
+  ],
+  "DYNASTY_RANKS": [
+    { "team": "Southie Thunder Buddies",    "owners": ["philosopherdan","daniel frank"], "score": 384.00, "winPct": "74%", "bonus": "Division, Total Points, Streak, Single Season W/L", "entered": 2023, "breakdown": { "champ":1, "thirdPlace":1, "ptsFirst":2, "playoffs":3, "divWin":2, "playoffWin":2, "winPct":74, "seasonsTop":4, "permRecordBonus":10, "recordBonus":100 } },
+    { "team": "Lake Champlain Champs",      "owners": [],                                "score": 205.75, "winPct": "57%", "bonus": "Championship", "entered": 2023, "breakdown": { "champ":1, "playoffs":3, "playoffWin":3, "winPct":57, "seasonsTop":4 } }
+    /* ...rest of teams, fill in following full data from your original JS... */
+  ]
+}
