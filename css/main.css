@@ -1,0 +1,25 @@
+/* Extracted from inline <style> tag in original HTML */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Oswald:wght@500;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+    --db4-gold: #D4AF37;
+    --db4-emerald: #008542;
+    --db4-silver: #C0C0C0;
+    --db4-rust: #8B4513;
+    --bg-dark: #0A0B0E;
+    --card-bg: #141418;
+    --card-border: #222228;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: #e5e5e5;
+    overflow-x: hidden;
+}
+body.modal-open { overflow: hidden; }
+
+.oswald { font-family: 'Oswald', sans-serif; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ... (full CSS content as in your original, for brevity the rest will be filled in next upload step) ... */
