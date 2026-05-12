@@ -106,6 +106,7 @@
         .nav-link {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            white-space: nowrap;
         }
         .nav-link.active::after {
             content: '';
@@ -188,6 +189,30 @@
 
         /* Sloppy exception badge */
         .sloppy-badge { background: rgba(139,69,19,0.2); color: #cd853f; border-color: rgba(139,69,19,0.3); }
+
+        /* Mobile nav responsive sizing */
+        @media (max-width: 1024px) {
+            .nav-link {
+                font-size: 11px;
+                padding: 0 4px;
+                letter-spacing: 0.05em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-link {
+                font-size: 10px;
+                padding: 0 3px;
+                letter-spacing: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .nav-link {
+                font-size: 9px;
+                padding: 0 2px;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen pb-20">
@@ -197,11 +222,12 @@
     <div id="altitude-marker">ALT: 0%</div>
 
     <!-- Header Navigation -->
-    <nav class="sticky top-0 z-50 glass border-b border-white/5 py-4">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
+    <nav class="sticky top-0 z-50 glass border-b border-white/5 py-3 sm:py-4">
+        <div class="max-w-7xl mx-auto px-2 sm:px-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
+            <!-- Logo -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                 <!-- SVG Mountain Logo -->
-                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 drop-shadow-lg">
+                <svg width="40" height="40" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 drop-shadow-lg" style="width:36px; height:36px;">
                     <rect width="44" height="44" rx="8" fill="#0A0B0E"/>
                     <rect width="44" height="44" rx="8" fill="url(#logoGrad)" opacity="0.15"/>
                     <!-- Back mountain (silver/muted) -->
@@ -228,27 +254,29 @@
                     </defs>
                 </svg>
                 <div>
-                    <h1 class="oswald text-2xl tracking-tighter uppercase italic leading-none">
+                    <h1 class="oswald text-xl sm:text-2xl tracking-tighter uppercase italic leading-none">
                         <span class="text-white">It's the</span>
                         <span class="rank-gold"> Climb</span>
                     </h1>
-                    <p class="text-[8px] mono uppercase tracking-[0.2em] text-gray-600 leading-none mt-0.5">DB4 Sports · Official Portal</p>
+                    <p class="text-[7px] sm:text-[8px] mono uppercase tracking-[0.1em] sm:tracking-[0.2em] text-gray-600 leading-none mt-0.5">DB4 Sports · Portal</p>
                 </div>
             </div>
 
-            <div class="flex gap-6 overflow-x-auto pb-2 md:pb-0">
-                <button onclick="switchTab('top')" id="btn-top" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white active">League HQ</button>
-                <button onclick="switchTab('mid')" id="btn-mid" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Mid League</button>
-                <button onclick="switchTab('cellar')" id="btn-cellar" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">The Cellar</button>
-                <button onclick="switchTab('rankings')" id="btn-rankings" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Dynasty Rankings</button>
-                <button onclick="switchTab('records')" id="btn-records" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Permanent Record</button>
-                <button onclick="switchTab('history')" id="btn-history" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">History</button>
-                <button onclick="switchTab('constitution')" id="btn-constitution" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Constitution</button>
+            <!-- Navigation Buttons - Scrollable on mobile, flex on desktop -->
+            <div class="flex gap-1 sm:gap-2 md:gap-3 lg:gap-6 overflow-x-auto pb-1 sm:pb-0 max-w-full">
+                <button onclick="switchTab('top')" id="btn-top" class="nav-link font-bold uppercase text-gray-400 hover:text-white active">League HQ</button>
+                <button onclick="switchTab('mid')" id="btn-mid" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Mid</button>
+                <button onclick="switchTab('cellar')" id="btn-cellar" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Cellar</button>
+                <button onclick="switchTab('rankings')" id="btn-rankings" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Dynasty</button>
+                <button onclick="switchTab('records')" id="btn-records" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Records</button>
+                <button onclick="switchTab('history')" id="btn-history" class="nav-link font-bold uppercase text-gray-400 hover:text-white">History</button>
+                <button onclick="switchTab('constitution')" id="btn-constitution" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Const.</button>
             </div>
 
+            <!-- Google Doc Link -->
             <a href="https://docs.google.com/document/d/1JASaVRgcu9-bmoVFDSwpHdhnjpSfgMyd99RjWIJc1OY/edit?tab=t.0" target="_blank"
-               class="bg-white/5 hover:bg-white/10 px-4 py-2 rounded text-xs font-bold uppercase tracking-tighter border border-white/10 transition-colors whitespace-nowrap">
-               <i class="fa-solid fa-scroll mr-2"></i>Google Doc
+               class="bg-white/5 hover:bg-white/10 px-2 sm:px-4 py-1 sm:py-2 rounded text-[8px] sm:text-xs font-bold uppercase tracking-tighter border border-white/10 transition-colors whitespace-nowrap flex-shrink-0">
+                <i class="fa-solid fa-scroll mr-1 sm:mr-2"></i><span class="hidden sm:inline">Google Doc</span><span class="sm:hidden">Docs</span>
             </a>
         </div>
     </nav>
@@ -301,10 +329,10 @@
 
         <!-- Dashboard Header -->
         <div id="header-section" class="mb-12">
-            <h2 id="tier-title" class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter">THE TOP LEVEL</h2>
-            <div class="flex items-center gap-4 mt-2">
-                <span id="tier-subtitle" class="text-gray-400 font-medium tracking-widest uppercase text-sm">Green Jacket & Gold Jacket Divisions</span>
-                <span class="w-12 h-px bg-white/20"></span>
+            <h2 id="tier-title" class="oswald text-4xl sm:text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter">THE TOP LEVEL</h2>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2">
+                <span id="tier-subtitle" class="text-gray-400 font-medium tracking-widest uppercase text-xs sm:text-sm">Green Jacket & Gold Jacket Divisions</span>
+                <span class="w-12 h-px bg-white/20 hidden sm:inline"></span>
                 <span id="team-count" class="text-xs bg-white/10 px-2 py-1 rounded mono">12 TEAMS</span>
             </div>
         </div>
@@ -359,7 +387,7 @@
 
         <!-- History Tab -->
         <div id="history-view" class="hidden">
-            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Season History</h2>
+            <h2 class="oswald text-4xl sm:text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Season History</h2>
             <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-12">1st Dynasty · 2023–Present</p>
 
             <div class="relative">
@@ -373,10 +401,10 @@
                                 <p class="mono text-[10px] text-gray-500 uppercase tracking-widest mb-1">Season 1 · 2023</p>
                                 <h3 class="oswald text-2xl uppercase italic rank-gold mb-3">The Founding</h3>
                                 <div class="space-y-2 text-sm text-gray-400">
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Lake Champlain Champs</strong></span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-certificate text-yellow-600 text-xs"></i><span>Gold Jacket · Dylan (Vermont)</span></div>
+                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Lake Champlain</strong></span></div>
+                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-certificate text-yellow-600 text-xs"></i><span>Gold Jacket · Dylan</span></div>
                                     <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-users text-gray-500 text-xs"></i><span>12 OG Founding Teams</span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-rocket text-blue-400 text-xs"></i><span>First season of the 1st Dynasty</span></div>
+                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-rocket text-blue-400 text-xs"></i><span>First season of 1st Dynasty</span></div>
                                 </div>
                             </div>
                         </div>
@@ -386,11 +414,11 @@
                         <div class="md:w-1/2 md:pl-12">
                             <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
                                 <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Notable Events</p>
-                                <p>· League founded by Commissioner Dan Frank</p>
+                                <p>· League founded by Commissioner</p>
                                 <p>· 12-team Top Level only</p>
                                 <p>· Snake startup draft</p>
-                                <p>· Constitution Rev 2023.1 ratified</p>
-                                <p>· No fees — "love of the game" model</p>
+                                <p>· Constitution Rev 2023.1</p>
+                                <p>· "Love of the game" model</p>
                             </div>
                         </div>
                     </div>
@@ -403,8 +431,8 @@
                                 <h3 class="oswald text-2xl uppercase italic rank-gold mb-3">The Expansion</h3>
                                 <div class="space-y-2 text-sm text-gray-400">
                                     <div class="flex items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Driftwood Broncos</strong></span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-certificate text-yellow-600 text-xs"></i><span>Green Jacket · Shane (Florida)</span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-bolt text-emerald-400 text-xs"></i><span>Thunder Buddies 14-game win streak set</span></div>
+                                    <div class="flex items-center gap-2"><i class="fa-solid fa-certificate text-yellow-600 text-xs"></i><span>Green Jacket · Shane</span></div>
+                                    <div class="flex items-center gap-2"><i class="fa-solid fa-bolt text-emerald-400 text-xs"></i><span>14-game win streak set</span></div>
                                     <div class="flex items-center gap-2"><i class="fa-solid fa-layer-group text-blue-400 text-xs"></i><span>Mid League & Cellar added</span></div>
                                 </div>
                             </div>
@@ -415,11 +443,11 @@
                         <div class="md:w-1/2 md:pr-12 md:text-right">
                             <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
                                 <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Notable Events</p>
-                                <p>· Promotion/Relegation system debuts</p>
-                                <p>· 3-tier league structure established</p>
-                                <p>· Southie TB builds dynasty lead</p>
-                                <p>· Amendment IX (Team Names) enacted</p>
-                                <p>· Kevin (Catalina) &amp; Brian (Mar a Lago) join</p>
+                                <p>· Promotion/Relegation debuts</p>
+                                <p>· 3-tier structure established</p>
+                                <p>· Dynasty lead building</p>
+                                <p>· Amendment IX enacted</p>
+                                <p>· New owners join</p>
                             </div>
                         </div>
                     </div>
@@ -431,10 +459,10 @@
                                 <p class="mono text-[10px] text-gray-500 uppercase tracking-widest mb-1">Season 3 · 2025</p>
                                 <h3 class="oswald text-2xl uppercase italic rank-gold mb-3">The Reckoning</h3>
                                 <div class="space-y-2 text-sm text-gray-400">
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Southie Thunder Buddies</strong></span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-certificate text-yellow-500 text-xs"></i><span>Green Jacket · Dan (Massachusetts)</span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-fire text-orange-500 text-xs"></i><span>Point Pleasant Mothmen: 234.6 all-time high</span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-star text-yellow-400 text-xs"></i><span>Thunder Buddies: 15-1 season record</span></div>
+                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Southie TB</strong></span></div>
+                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-fire text-orange-500 text-xs"></i><span>234.6 all-time high</span></div>
+                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-star text-yellow-400 text-xs"></i><span>15-1 season record</span></div>
+                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-scroll text-gray-400 text-xs"></i><span>Amendment X enacted</span></div>
                                 </div>
                             </div>
                         </div>
@@ -444,11 +472,11 @@
                         <div class="md:w-1/2 md:pl-12">
                             <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
                                 <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Notable Events</p>
-                                <p>· Curtis (Point Pleasant Mothmen) joins</p>
-                                <p>· Amendment X (Sloppy Exception) enacted</p>
-                                <p>· Season total record: 2,442.99 pts (STB)</p>
-                                <p>· Bikini Bottom Angry Birds return (Sam)</p>
-                                <p>· Bog Cloggers &amp; London Nannies relegated</p>
+                                <p>· New owners join</p>
+                                <p>· Amendment X enacted</p>
+                                <p>· Season record set</p>
+                                <p>· Returning champions</p>
+                                <p>· Relegation updates</p>
                             </div>
                         </div>
                     </div>
@@ -460,10 +488,10 @@
                                 <p class="mono text-[10px] text-gray-500 uppercase tracking-widest mb-1">Season 4 · 2026</p>
                                 <h3 class="oswald text-2xl uppercase italic text-white mb-3">The Current Season <span class="text-red-500 text-base animate-pulse">●</span></h3>
                                 <div class="space-y-2 text-sm text-gray-400">
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-crown text-[#D4AF37] text-xs"></i><span>Dynasty Leader: <strong class="rank-gold">Southie Thunder Buddies</strong></span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-user-plus text-blue-400 text-xs"></i><span>3 new owners: CellyL77, cbabybell, DynastyGhoul</span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-scroll text-gray-400 text-xs"></i><span>Constitution Rev 2026.1 (TMGP Update)</span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-question text-gray-600 text-xs"></i><span>Champion: <em class="text-gray-600">To be determined…</em></span></div>
+                                    <div class="flex items-center gap-2"><i class="fa-solid fa-crown text-[#D4AF37] text-xs"></i><span>Dynasty Leader: <strong class="rank-gold">Southie TB</strong></span></div>
+                                    <div class="flex items-center gap-2"><i class="fa-solid fa-user-plus text-blue-400 text-xs"></i><span>New owners joined</span></div>
+                                    <div class="flex items-center gap-2"><i class="fa-solid fa-scroll text-gray-400 text-xs"></i><span>Constitution Rev 2026.1</span></div>
+                                    <div class="flex items-center gap-2"><i class="fa-solid fa-question text-gray-600 text-xs"></i><span>Champion: <em>TBD</em></span></div>
                                 </div>
                             </div>
                         </div>
@@ -473,11 +501,11 @@
                         <div class="md:w-1/2 md:pr-12 md:text-right">
                             <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
                                 <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Watch This Season</p>
-                                <p>· Can STB win back-to-back?</p>
-                                <p>· Redraft trigger: STB wins = 1/3 champs</p>
-                                <p>· New owners adjusting to keeper rules</p>
-                                <p>· Bog Cloggers &amp; London Nannies climbing back</p>
-                                <p>· Dynasty Victor fate TBD</p>
+                                <p>· Back-to-back champion?</p>
+                                <p>· Redraft triggers active</p>
+                                <p>· New owners adjusting</p>
+                                <p>· Competitive balance</p>
+                                <p>· Dynasty fate TBD</p>
                             </div>
                         </div>
                     </div>
@@ -493,27 +521,27 @@
                     <div class="glass rounded-xl p-4 border-l-4 border-green-800/50">
                         <p class="text-[10px] mono text-green-600 uppercase tracking-widest font-bold mb-1">Honorable Discharge</p>
                         <p class="font-bold text-white">Robert — Minnesota Gray Ducks</p>
-                        <p class="text-xs text-gray-500 mono">2024 · D-Score: 182.00 · Win%: 57%</p>
+                        <p class="text-xs text-gray-500 mono">2024 · D-Score: 182.00</p>
                     </div>
                     <div class="glass rounded-xl p-4 border-l-4 border-green-800/50">
                         <p class="text-[10px] mono text-green-600 uppercase tracking-widest font-bold mb-1">Honorable Discharge</p>
-                        <p class="font-bold text-white">Steve (Sarppen) — Any Given Sunday</p>
+                        <p class="font-bold text-white">Steve (Sarppen)</p>
                         <p class="text-xs text-gray-500 mono">2023 · OG Founding Member</p>
                     </div>
                     <div class="glass rounded-xl p-4 border-l-4 border-red-900/50">
                         <p class="text-[10px] mono text-red-500 uppercase tracking-widest font-bold mb-1">Other than Honorable</p>
                         <p class="font-bold text-white">Danny — The Other Guys</p>
-                        <p class="text-xs text-gray-500 mono">2023 · OG Founding Member</p>
+                        <p class="text-xs text-gray-500 mono">2023 · OG Founding</p>
                     </div>
                     <div class="glass rounded-xl p-4 border-l-4 border-red-900/50">
                         <p class="text-[10px] mono text-red-500 uppercase tracking-widest font-bold mb-1">Other than Honorable</p>
                         <p class="font-bold text-white">LP — Peter Griffin's Revenge</p>
-                        <p class="text-xs text-gray-500 mono">2023 · OG Founding Member · D-Score: -36</p>
+                        <p class="text-xs text-gray-500 mono">2023 · OG Founding</p>
                     </div>
                     <div class="glass rounded-xl p-4 border-l-4 border-red-900/50">
                         <p class="text-[10px] mono text-red-500 uppercase tracking-widest font-bold mb-1">Other than Honorable</p>
-                        <p class="font-bold text-white">Ryan (RWeir) — Blue Mountain State</p>
-                        <p class="text-xs text-gray-500 mono">2023 · OG Founding Member · D-Score: -36</p>
+                        <p class="font-bold text-white">Ryan (RWeir)</p>
+                        <p class="text-xs text-gray-500 mono">2023 · OG Founding</p>
                     </div>
                 </div>
             </div>
@@ -523,13 +551,13 @@
         <div id="constitution-view" class="hidden">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
-                    <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter">The Constitution</h2>
-                    <p class="text-gray-500 text-sm mono uppercase tracking-widest mt-1">Revision 2026.1 · January 1, 2026 · Commissioner: Daniel Frank</p>
+                    <h2 class="oswald text-4xl sm:text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter">The Constitution</h2>
+                    <p class="text-gray-500 text-sm mono uppercase tracking-widest mt-1">Revision 2026.1 · Commissioner: Dan Frank</p>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="expandAllConstitution()" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors">Expand All</button>
-                    <button onclick="collapseAllConstitution()" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors">Collapse All</button>
-                    <input id="constitution-search" oninput="filterConstitution(this.value)" type="text" placeholder="Search…" class="text-xs mono bg-white/5 border border-white/10 rounded px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-[#D4AF37]/40 w-40">
+                    <button onclick="collapseAllConstitution()" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors">Collapse</button>
+                    <input id="constitution-search" oninput="filterConstitution(this.value)" type="text" placeholder="Search…" class="text-xs mono bg-white/5 border border-white/10 rounded px-3 py-2 text-white/80 w-32 sm:w-48">
                 </div>
             </div>
 
