@@ -81,11 +81,15 @@ async function loadLeagueData(tier) {
  */
 function getDynastyInfo(user, teamName) {
     if (!user && !teamName) return null;
-    const uName = (user?.display_name || '').toLowerCase();
-    const tName = (teamName || '').toLowerCase();
+    const uName = (user?.display_name || '').toLowerCase().trim();
+    const tName = (teamName || '').toLowerCase().trim()
+        .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035']/g, "'"); // normalize apostrophes
+
     return DYNASTY_RANKS.find(r => {
-        const isOwner = r.owners && r.owners.some(o => uName.includes(o));
-        const isTeam = tName.includes(r.team.toLowerCase());
+        const normalizedTeam = r.team.toLowerCase()
+            .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035']/g, "'");
+        const isOwner = r.owners && r.owners.some(o => uName === o || uName.includes(o) || o.includes(uName));
+        const isTeam = tName === normalizedTeam || tName.includes(normalizedTeam) || normalizedTeam.includes(tName);
         return isOwner || isTeam;
     });
 }
