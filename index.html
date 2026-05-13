@@ -55,6 +55,39 @@
             pointer-events: none;
         }
 
+        /* Back to Top Button */
+        #back-to-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #D4AF37, #b8860b);
+            border: 2px solid rgba(212,175,55,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+        }
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(212,175,55,0.5);
+        }
+        #back-to-top i {
+            color: #000;
+            font-size: 20px;
+        }
+
         .tier-top { border-top: 4px solid var(--db4-gold); }
         .tier-mid { border-top: 4px solid var(--db4-silver); }
         .tier-cellar { border-top: 4px solid var(--db4-rust); }
@@ -213,9 +246,25 @@
                 padding: 0 2px;
             }
         }
+
+        /* Rankings table mobile responsive */
+        .rankings-table-wrapper {
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .rankings-table-wrapper {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen pb-20">
+
+    <!-- Back to Top Button -->
+    <div id="back-to-top" onclick="scrollToTop()">
+        <i class="fa-solid fa-chevron-up"></i>
+    </div>
 
     <!-- Scroll Rope -->
     <div id="scroll-rope"></div>
@@ -226,39 +275,56 @@
         <div class="max-w-7xl mx-auto px-2 sm:px-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
             <!-- Logo -->
             <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                <!-- SVG Mountain Logo -->
+                <!-- New Football-Forward Logo -->
                 <svg width="40" height="40" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 drop-shadow-lg" style="width:36px; height:36px;">
+                    <!-- Background -->
                     <rect width="44" height="44" rx="8" fill="#0A0B0E"/>
-                    <rect width="44" height="44" rx="8" fill="url(#logoGrad)" opacity="0.15"/>
-                    <!-- Back mountain (silver/muted) -->
-                    <polygon points="30,8 40,34 20,34" fill="#2a2a2a" stroke="#444" stroke-width="0.5"/>
-                    <!-- Front mountain (gold) -->
-                    <polygon points="14,12 28,34 0,34" fill="url(#peakGrad)"/>
-                    <!-- Snow cap -->
-                    <polygon points="14,12 18,20 10,20" fill="white" opacity="0.9"/>
-                    <!-- Climbing rope line -->
-                    <path d="M14,12 L14,38" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2,2" opacity="0.6"/>
-                    <!-- Climber dot at peak -->
-                    <circle cx="14" cy="12" r="2" fill="#D4AF37"/>
+                    <rect width="44" height="44" rx="8" fill="url(#logoBg)" opacity="0.15"/>
+                    
+                    <!-- Football -->
+                    <ellipse cx="22" cy="16" rx="10" ry="7" fill="url(#footballGrad)"/>
+                    <!-- Laces -->
+                    <line x1="22" y1="10" x2="22" y2="22" stroke="#D4AF37" stroke-width="1.5" opacity="0.8"/>
+                    <circle cx="20" cy="12" r="1" fill="#D4AF37"/>
+                    <circle cx="24" cy="12" r="1" fill="#D4AF37"/>
+                    <circle cx="20" cy="15" r="1" fill="#D4AF37"/>
+                    <circle cx="24" cy="15" r="1" fill="#D4AF37"/>
+                    <circle cx="20" cy="18" r="1" fill="#D4AF37"/>
+                    <circle cx="24" cy="18" r="1" fill="#D4AF37"/>
+                    
+                    <!-- Rising Trend Lines (climbing upward) -->
+                    <path d="M 8 28 L 14 22" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                    <path d="M 14 22 L 20 16" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                    <path d="M 20 16 L 26 10" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                    
+                    <!-- Success marker -->
+                    <circle cx="30" cy="8" r="4" fill="none" stroke="#D4AF37" stroke-width="2"/>
+                    <path d="M 28 8 L 29 9 L 31 7" stroke="#D4AF37" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    
+                    <!-- Star accent -->
+                    <polygon points="22,32 24,38 31,38 26,42 28,48 22,44 16,48 18,42 13,38 20,38" fill="#D4AF37" opacity="0.7"/>
+                    
                     <!-- Border glow -->
                     <rect x="0.5" y="0.5" width="43" height="43" rx="7.5" stroke="#D4AF37" stroke-width="0.5" opacity="0.3"/>
+                    
                     <defs>
-                        <linearGradient id="peakGrad" x1="14" y1="12" x2="14" y2="34" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#D4AF37"/>
-                            <stop offset="100%" stop-color="#5a4a10"/>
+                        <linearGradient id="footballGrad" x1="12" y1="10" x2="32" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#8B4513"/>
+                            <stop offset="50%" stop-color="#A0522D"/>
+                            <stop offset="100%" stop-color="#654321"/>
                         </linearGradient>
-                        <linearGradient id="logoGrad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                        <linearGradient id="logoBg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
                             <stop offset="0%" stop-color="#D4AF37"/>
                             <stop offset="100%" stop-color="#000"/>
                         </linearGradient>
                     </defs>
                 </svg>
-                <div>
+                <div class="hidden sm:block">
                     <h1 class="oswald text-xl sm:text-2xl tracking-tighter uppercase italic leading-none">
                         <span class="text-white">It's the</span>
                         <span class="rank-gold"> Climb</span>
                     </h1>
-                    <p class="text-[7px] sm:text-[8px] mono uppercase tracking-[0.1em] sm:tracking-[0.2em] text-gray-600 leading-none mt-0.5">DB4 Sports · Portal</p>
+                    <p class="text-[7px] sm:text-[8px] mono uppercase tracking-[0.1em] sm:tracking-[0.2em] text-gray-600 leading-none mt-0.5">DB4 Sports · Fantasy Dynasty</p>
                 </div>
             </div>
 
@@ -285,15 +351,15 @@
     <main id="app-content" class="max-w-7xl mx-auto px-4 py-8">
 
         <!-- Dynasty Victor Banner (shown on league tabs) -->
-        <div id="dynasty-banner-section" class="mb-8 dynasty-banner rounded-xl p-4 animate-fade">
+        <div id="dynasty-banner-section" class="mb-8 dynasty-banner rounded-xl p-3 sm:p-4 animate-fade">
             <!-- Top row: icon + title + score -->
-            <div class="flex items-center gap-3 mb-3">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
                 <div class="text-[#D4AF37] text-xl flex-shrink-0"><i class="fa-solid fa-mountain"></i></div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-grow">
                     <p class="text-[9px] uppercase tracking-widest text-gray-500 font-bold mono leading-tight">1st Dynasty · Season 4 · 2023–Present</p>
                     <p class="oswald text-base uppercase italic leading-tight">Leader: <span class="rank-gold">Southie Thunder Buddies</span></p>
                 </div>
-                <div class="ml-auto flex-shrink-0 text-right">
+                <div class="flex-shrink-0 text-right">
                     <span class="mono text-xl font-bold rank-gold leading-none block">384.00</span>
                     <span class="text-gray-600 text-[9px] mono">D-PTS</span>
                 </div>
@@ -349,7 +415,7 @@
                     <span class="w-2 h-2 bg-red-600 rounded-full animate-ping mr-3"></span>
                     Live Dashboard — Week <span id="current-week-num" class="ml-1">1</span>
                 </h3>
-                <div id="matchups-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="matchups-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
             <div id="standings-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
@@ -357,19 +423,21 @@
 
         <!-- Rankings Tab -->
         <div id="rankings-view" class="hidden">
-            <div class="glass rounded-xl overflow-hidden premium-shadow">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-white/5 uppercase text-xs tracking-widest font-bold">
-                            <th class="p-4 mono">Rank</th>
-                            <th class="p-4">Team</th>
-                            <th class="p-4 mono">Win %</th>
-                            <th class="p-4 mono">D-Score</th>
-                            <th class="p-4">Bonuses</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rankings-body"></tbody>
-                </table>
+            <div class="rankings-table-wrapper">
+                <div class="glass rounded-xl overflow-hidden premium-shadow">
+                    <table class="w-full text-left border-collapse text-sm sm:text-base">
+                        <thead>
+                            <tr class="bg-white/5 uppercase text-xs sm:text-sm tracking-widest font-bold">
+                                <th class="p-2 sm:p-4 mono">Rank</th>
+                                <th class="p-2 sm:p-4">Team</th>
+                                <th class="p-2 sm:p-4 mono">Win %</th>
+                                <th class="p-2 sm:p-4 mono">D-Score</th>
+                                <th class="p-2 sm:p-4 hidden sm:table-cell">Bonuses</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankings-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -554,10 +622,10 @@
                     <h2 class="oswald text-4xl sm:text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter">The Constitution</h2>
                     <p class="text-gray-500 text-sm mono uppercase tracking-widest mt-1">Revision 2026.1 · Commissioner: Dan Frank</p>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                     <button onclick="expandAllConstitution()" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors">Expand All</button>
                     <button onclick="collapseAllConstitution()" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors">Collapse</button>
-                    <input id="constitution-search" oninput="filterConstitution(this.value)" type="text" placeholder="Search…" class="text-xs mono bg-white/5 border border-white/10 rounded px-3 py-2 text-white/80 w-32 sm:w-48">
+                    <input id="constitution-search" oninput="filterConstitution(this.value)" type="text" placeholder="Search…" class="text-xs mono bg-white/5 border border-white/10 rounded px-3 py-2 text-white/80 w-full sm:w-48">
                 </div>
             </div>
 
@@ -578,5 +646,25 @@
 
     <script src="js/constants.js"></script>
     <script src="js/app.js"></script>
+
+    <script>
+        // Back to Top Button functionality
+        const backToTopBtn = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
 </body>
 </html>
