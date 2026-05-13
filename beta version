@@ -683,14 +683,19 @@
 
     function getDynastyInfo(user, teamName) {
         if (!user && !teamName) return null;
-        const uName = normalizeStr(user?.display_name);
+        // Check both display_name and username — Sleeper display_name is often a
+        // custom alias (e.g. "Kevin") while username is the actual account handle
+        const uDisplayName = normalizeStr(user?.display_name);
+        const uUsername    = normalizeStr(user?.username);
         const tName = normalizeStr(teamName);
 
         return DYNASTY_RANKS.find(r => {
-            // Owner match: exact equality, or either string contains the other
+            // Owner match: exact match on username (precise), looser match on display_name
             const ownerMatch = r.owners && r.owners.some(o => {
                 const oNorm = normalizeStr(o);
-                return uName === oNorm || uName.includes(oNorm) || oNorm.includes(uName);
+                const usernameMatch    = uUsername === oNorm;
+                const displayNameMatch = uDisplayName === oNorm || uDisplayName.includes(oNorm) || oNorm.includes(uDisplayName);
+                return usernameMatch || displayNameMatch;
             });
             // Team name match: normalize apostrophes then check equality or containment
             const rTeam = normalizeStr(r.team);
