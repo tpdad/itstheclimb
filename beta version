@@ -577,7 +577,7 @@
           entered: 2024, breakdown: { winPct:50, seasonsTop:3 } },
         { team: 'Bikini Bottom Angry Birds',  owners: [],                                score: 180.17, winPct: '46%', bonus: 'Division',
           entered: 2023, breakdown: { divWin:1, winPct:46, seasonsTop:3 } },
-        { team: "The Catalina Wine Mixer's",  owners: ['bobloblaw40'],                                score: 179.83, winPct: '64%', bonus: '-',
+        { team: "The Catalina Wine Mixer's",  owners: ['bobloblaw40'],                   score: 179.83, winPct: '64%', bonus: '-',
           entered: 2024, breakdown: { winPct:64, seasonsTop:3 } },
         { team: 'Driftwood Broncos',          owners: ['sloppyjoes'],                    score: 143.17, winPct: '39%', bonus: 'Championship',
           entered: 2024, breakdown: { champ:1, winPct:39, seasonsTop:3 } },
