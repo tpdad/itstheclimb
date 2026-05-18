@@ -1193,6 +1193,21 @@ const ADMIN_PASSWORD = 'itsthecli mb';
         } else if (tab === 'constitution') {
             document.getElementById('constitution-view').classList.remove('hidden');
             renderConstitution();
+        } else if (tab === 'trades') {
+            document.getElementById('trades-view').classList.remove('hidden');
+            renderTradeLog();
+        } else if (tab === 'playoffs') {
+            document.getElementById('playoffs-view').classList.remove('hidden');
+            renderPlayoffBracket();
+        } else if (tab === 'drafts') {
+            document.getElementById('drafts-view').classList.remove('hidden');
+            renderDraftHistory();
+        } else if (tab === 'projections') {
+            document.getElementById('projections-view').classList.remove('hidden');
+            renderSeasonProjections();
+        } else if (tab === 'waivers') {
+            document.getElementById('waivers-view').classList.remove('hidden');
+            renderWaiverWire();
         } else {
             document.getElementById('live-view').classList.remove('hidden');
             document.getElementById('header-section').classList.remove('hidden');
@@ -1477,4 +1492,3 @@ const ADMIN_PASSWORD = 'itsthecli mb';
     </script>
 </body>
 </html>
-
