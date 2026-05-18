@@ -199,7 +199,12 @@
                 <button onclick="switchTab('mid')" id="btn-mid" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Mid League</button>
                 <button onclick="switchTab('cellar')" id="btn-cellar" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">The Cellar</button>
                 <button onclick="switchTab('rankings')" id="btn-rankings" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Dynasty Rankings</button>
-                <button onclick="switchTab('records')" id="btn-records" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Permanent Record</button>
+                <button onclick="switchTab('trades')" id="btn-trades" class="nav-link text-xs md:text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white whitespace-nowrap hidden md:inline-block">Trades</button>
+            <button onclick="switchTab('playoffs')" id="btn-playoffs" class="nav-link text-xs md:text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white whitespace-nowrap hidden md:inline-block">Playoffs</button>
+            <button onclick="switchTab('drafts')" id="btn-drafts" class="nav-link text-xs md:text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white whitespace-nowrap hidden md:inline-block">Drafts</button>
+            <button onclick="switchTab('projections')" id="btn-projections" class="nav-link text-xs md:text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white whitespace-nowrap hidden lg:inline-block">Projections</button>
+            <button onclick="switchTab('waivers')" id="btn-waivers" class="nav-link text-xs md:text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white whitespace-nowrap hidden md:inline-block">Waivers</button>
+                        <button onclick="switchTab('records')" id="btn-records" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Permanent Record</button>
                 <button onclick="switchTab('history')" id="btn-history" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">History</button>
                 <button onclick="switchTab('constitution')" id="btn-constitution" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white">Constitution</button>
             </div>
@@ -294,7 +299,44 @@
             </div>
         </div>
 
-        <div id="records-view" class="hidden space-y-12">
+
+        <!-- TRADES VIEW -->
+        <div id="trades-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Trade Log</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">All inter-league trades</p>
+            <div id="trades-content" class="space-y-8"></div>
+        </div>
+
+        <!-- PLAYOFFS VIEW -->
+        <div id="playoffs-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Playoff History</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Championship brackets</p>
+            <div id="playoffs-content" class="space-y-8"></div>
+        </div>
+
+        <!-- DRAFTS VIEW -->
+        <div id="drafts-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Draft History</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Notable picks</p>
+            <div id="drafts-content" class="space-y-8"></div>
+        </div>
+
+        <!-- PROJECTIONS VIEW -->
+        <div id="projections-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Season Projections</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Win-loss predictions & playoff odds</p>
+            <div id="projections-content" class="space-y-6"></div>
+        </div>
+
+        <!-- WAIVERS VIEW -->
+        <div id="waivers-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Waiver Wire</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Weekly free agent activity</p>
+            <div id="waivers-content" class="space-y-8"></div>
+        </div>
+
+
+                <div id="records-view" class="hidden space-y-12">
             <section>
                 <h3 class="oswald text-3xl italic uppercase mb-6 border-l-4 border-[#D4AF37] pl-4">Hall of Fame</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="hall-of-fame-grid"></div>
@@ -606,6 +648,70 @@
         { id: 'amend9', type: 'amendment', title: 'Amendment IX: A Team Has No Name', content: `Team names must include a location + mascot/nickname (real or fictional). Names are meant to be permanent for branding and historical identity. Commissioner has final authority on compliance. Goal: build a league with enough lore that teams have legends. No overly vulgar names (workplace-visible standard applies).` },
         { id: 'amend10', type: 'amendment', title: 'Amendment X: The Sloppy Exception', content: `Commissioner may promote a non-performing team based on participation level and likability to fill vacancies not created by normal circumstances. Usable once per dynasty per owner. Owner must be in good standing. Lower-level commissioner is consulted. This is the exception, not the norm.` }
     ];
+
+// ─── NEW DATA STRUCTURES (Phase 2) ────────────────────────────────────────
+// TRADE LOG - All inter-league trades
+const TRADE_LOG = [
+    { season: 4, year: 2026, trades: [
+        { week: 3, team1: 'Southie Thunder Buddies', team2: 'Lake Champlain Champs', description: 'Traded pick 2.07 for pick 1.09' },
+        { week: 5, team1: 'Point Pleasant Mothmen', team2: 'Bikini Bottom Angry Birds', description: 'Traded DJ Moore for 2027 1st round pick' },
+    ]},
+    { season: 3, year: 2025, trades: [
+        { week: 2, team1: 'Driftwood Broncos', team2: 'Southie Thunder Buddies', description: 'Traded Ja\'Marr Chase for multiple picks' },
+        { week: 6, team1: 'New England Blinkahs', team2: 'Mar a Lago Bed Bugs', description: 'Swapped draft picks (2025 round 1)' },
+    ]},
+];
+
+// PLAYOFF HISTORY - Championship brackets and results
+const PLAYOFF_HISTORY = [
+    { season: 3, year: 2025, champion: 'Southie Thunder Buddies', runnerUp: 'Lake Champlain Champs', bracket: [
+        { round: 'Championship', week: 16, team1: 'Southie Thunder Buddies', score1: 156.7, team2: 'Lake Champlain Champs', score2: 134.2, winner: 'Southie Thunder Buddies' },
+    ]},
+    { season: 2, year: 2024, champion: 'Driftwood Broncos', runnerUp: 'Southie Thunder Buddies', bracket: [
+        { round: 'Championship', week: 16, team1: 'Driftwood Broncos', score1: 135.6, team2: 'Southie Thunder Buddies', score2: 131.2, winner: 'Driftwood Broncos' },
+    ]},
+];
+
+// DRAFT HISTORY - Notable draft picks
+const DRAFT_HISTORY = [
+    { season: 4, year: 2026, type: 'Rookie', date: 'April 2026', topPicks: [
+        { pick: 1, team: 'The Bog Cloggers', player: 'TBD' },
+        { pick: 2, team: 'London Silly Nannies', player: 'TBD' },
+        { pick: 3, team: 'Puddletown Panthers', player: 'TBD' },
+    ]},
+];
+
+// WAIVER WIRE - Weekly free agent activity
+const WAIVER_LOG = [
+    { week: 9, date: '2026-05-14', transactions: [
+        { type: 'add', team: 'Southie Thunder Buddies', player: 'Jaylen Warren', position: 'RB', dropped: 'None' },
+        { type: 'add', team: 'Point Pleasant Mothmen', player: 'Marvin Jones Jr', position: 'WR', dropped: 'Khalil Shakir' },
+    ]},
+];
+
+// SEASON PROJECTIONS - Win-loss predictions
+const SEASON_PROJECTIONS = {
+    season: 4, year: 2026, week: 9,
+    projections: [
+        { team: 'Southie Thunder Buddies', wins: 12, losses: 3, projectedRecord: '14-1', confidence: 95 },
+        { team: 'Lake Champlain Champs', wins: 10, losses: 5, projectedRecord: '12-3', confidence: 85 },
+        { team: 'Point Pleasant Mothmen', wins: 9, losses: 6, projectedRecord: '11-4', confidence: 80 },
+    ]
+};
+
+// PLAYOFF ODDS - Probability calculations
+const PLAYOFF_ODDS = {
+    season: 4, year: 2026, week: 9,
+    odds: [
+        { team: 'Southie Thunder Buddies', playoffProb: 99, byeProb: 90 },
+        { team: 'Lake Champlain Champs', playoffProb: 98, byeProb: 75 },
+        { team: 'Point Pleasant Mothmen', playoffProb: 95, byeProb: 60 },
+    ]
+};
+
+// ADMIN PASSWORD - Change this before deploying!
+const ADMIN_PASSWORD = 'itsthecli mb';
+
 
     // ─── STATE ────────────────────────────────────────────────────────────────────
 
@@ -1068,7 +1174,7 @@
 
     function switchTab(tab) {
         currentTab = tab;
-        const views = ['live-view','rankings-view','records-view','history-view','constitution-view'];
+        const views = ['live-view','rankings-view','records-view','history-view','constitution-view','trades-view','playoffs-view','drafts-view','projections-view','waivers-view'];
         views.forEach(v => document.getElementById(v).classList.add('hidden'));
         document.getElementById('header-section').classList.add('hidden');
         document.getElementById('dynasty-banner-section').classList.add('hidden');
@@ -1233,6 +1339,133 @@
 
     // ─── INIT ─────────────────────────────────────────────────────────────────────
 
+    
+    // ─── NEW RENDER FUNCTIONS (Phase 2) ───────────────────────────────────
+
+    function renderTradeLog() {
+        const container = document.getElementById('trades-content');
+        if (!TRADE_LOG || !TRADE_LOG.length) {
+            container.innerHTML = '<p class="text-gray-500">No trades recorded yet</p>';
+            return;
+        }
+        let html = '';
+        [...TRADE_LOG].reverse().forEach(season => {
+            html += `<div class="glass rounded-xl p-6 premium-shadow">
+                <h3 class="oswald text-2xl uppercase mb-4 border-l-4 border-[#D4AF37] pl-4 text-white">Season ${season.season} (${season.year})</h3>
+                <div class="space-y-3">`;
+            season.trades.forEach(trade => {
+                html += `<div class="bg-white/3 rounded p-4 border border-white/5 hover:border-[#D4AF37]/30 transition-colors">
+                    <p class="text-sm"><span class="font-bold text-[#D4AF37]">${trade.team1}</span> ↔ <span class="font-bold text-[#D4AF37]">${trade.team2}</span></p>
+                    <p class="text-xs text-gray-500 mt-1">Week ${trade.week}: ${trade.description}</p>
+                </div>`;
+            });
+            html += '</div></div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function renderPlayoffBracket() {
+        const container = document.getElementById('playoffs-content');
+        if (!PLAYOFF_HISTORY || !PLAYOFF_HISTORY.length) {
+            container.innerHTML = '<p class="text-gray-500">No playoff history recorded</p>';
+            return;
+        }
+        let html = '';
+        [...PLAYOFF_HISTORY].reverse().forEach(season => {
+            html += `<div class="glass rounded-xl p-6 premium-shadow">
+                <div class="flex flex-col md:flex-row md:justify-between mb-4"><div><h3 class="oswald text-2xl">Season ${season.season}</h3></div>
+                <div class="text-right"><p class="text-xs text-gray-500">Champion</p><p class="oswald text-xl text-[#D4AF37]">${season.champion}</p></div></div>
+                <div class="space-y-3">`;
+            season.bracket.forEach(match => {
+                const team1Class = match.winner === match.team1 ? 'text-[#D4AF37] font-bold' : 'text-gray-400';
+                const team2Class = match.winner === match.team2 ? 'text-[#D4AF37] font-bold' : 'text-gray-400';
+                html += `<div class="bg-white/3 rounded p-4 border border-white/5">
+                    <p class="text-xs text-gray-600 mb-2 font-bold">${match.round} • Week ${match.week}</p>
+                    <div class="space-y-1"><div class="flex justify-between"><span class="${team1Class}">${match.team1}</span><span>${match.score1}</span></div>
+                    <div class="flex justify-between"><span class="${team2Class}">${match.team2}</span><span>${match.score2}</span></div></div>
+                </div>`;
+            });
+            html += '</div></div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function renderDraftHistory() {
+        const container = document.getElementById('drafts-content');
+        if (!DRAFT_HISTORY || !DRAFT_HISTORY.length) {
+            container.innerHTML = '<p class="text-gray-500">No draft history recorded</p>';
+            return;
+        }
+        let html = '';
+        [...DRAFT_HISTORY].reverse().forEach(draft => {
+            html += `<div class="glass rounded-xl p-6 premium-shadow">
+                <h3 class="oswald text-2xl uppercase mb-4">Season ${draft.season} - ${draft.date}</h3>
+                <div class="space-y-2">`;
+            draft.topPicks.forEach(pick => {
+                html += `<div class="flex gap-4 items-center bg-white/3 p-3 rounded-lg border border-white/5">
+                    <span class="text-[#D4AF37] font-bold text-lg mono w-10">#${pick.pick}</span>
+                    <div class="flex-1"><p class="font-bold text-white">${pick.player || 'TBD'}</p><p class="text-xs text-gray-500">${pick.team}</p></div>
+                </div>`;
+            });
+            html += '</div></div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function renderWaiverWire() {
+        const container = document.getElementById('waivers-content');
+        if (!WAIVER_LOG || !WAIVER_LOG.length) {
+            container.innerHTML = '<p class="text-gray-500">No waiver activity recorded</p>';
+            return;
+        }
+        let html = '';
+        WAIVER_LOG.forEach(week => {
+            html += `<div class="glass rounded-xl p-6 premium-shadow">
+                <p class="text-sm font-bold text-[#D4AF37] uppercase mb-4">Week ${week.week} • ${week.date}</p>
+                <div class="space-y-2">`;
+            week.transactions.forEach(tx => {
+                const color = tx.type === 'add' ? 'text-green-400' : 'text-red-400';
+                const icon = tx.type === 'add' ? '✓' : '✕';
+                html += `<div class="bg-white/3 rounded p-3 border border-white/5">
+                    <div class="flex gap-3"><span class="${color} font-bold">${icon}</span>
+                    <div class="flex-1"><p class="font-bold text-white">${tx.team}</p><p class="text-sm text-gray-400"><span class="${color} font-bold">${tx.player}</span> (${tx.position})</p></div></div>
+                </div>`;
+            });
+            html += '</div></div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function renderSeasonProjections() {
+        const container = document.getElementById('projections-content');
+        if (!SEASON_PROJECTIONS || !SEASON_PROJECTIONS.projections.length) {
+            container.innerHTML = '<p class="text-gray-500">No projections available</p>';
+            return;
+        }
+        let html = '<div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="space-y-4"><h3 class="oswald text-xl uppercase font-bold">Projected Records</h3>';
+        SEASON_PROJECTIONS.projections.forEach(p => {
+            html += `<div class="glass p-4 rounded border border-white/5"><div class="flex justify-between items-start mb-2">
+                <div><p class="font-bold text-white">${p.team}</p><p class="text-xs text-gray-600">${p.wins}W-${p.losses}L</p></div>
+                <div class="text-right"><p class="oswald text-lg font-bold text-[#D4AF37]">${p.projectedRecord}</p></div></div>
+                <div class="bg-white/3 rounded h-1.5"><div class="h-full bg-[#D4AF37]" style="width: ${(p.wins / (p.wins + p.losses)) * 100}%"></div></div>
+            </div>`;
+        });
+        html += '</div><div class="space-y-4"><h3 class="oswald text-xl uppercase font-bold">Playoff Odds</h3>';
+        PLAYOFF_ODDS.odds.forEach(o => {
+            const color = o.playoffProb >= 50 ? 'text-green-400' : 'text-red-500';
+            html += `<div class="glass p-4 rounded border border-white/5">
+                <div class="flex justify-between items-start mb-2">
+                    <div><p class="font-bold text-white">${o.team}</p><p class="text-xs text-gray-600">Make Playoffs</p></div>
+                    <p class="oswald text-lg font-bold ${color}">${o.playoffProb}%</p>
+                </div>
+                <div class="bg-white/3 rounded h-1.5"><div class="h-full bg-gradient-to-r from-red-500 to-green-500" style="width: ${o.playoffProb}%"></div></div>
+            </div>`;
+        });
+        html += '</div></div>';
+        container.innerHTML = html;
+    }
+
+    
     window.onload = async () => {
         await fetchPlayerMap();
         switchTab('top');
@@ -1244,3 +1477,4 @@
     </script>
 </body>
 </html>
+
