@@ -257,7 +257,41 @@
                 -webkit-overflow-scrolling: touch;
             }
         }
-    </style>
+
+        #mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        #mobile-menu.open {
+            max-height: 500px;
+            background: rgba(20,20,24,0.98);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .hamburger-btn {
+            display: none;
+            cursor: pointer;
+            padding: 8px;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: flex;
+            }
+            .nav-desktop {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            #mobile-menu {
+                display: none !important;
+            }
+        }
+        </style>
 </head>
 <body class="min-h-screen pb-20">
 
@@ -336,7 +370,10 @@
                 <button onclick="switchTab('rankings')" id="btn-rankings" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Dynasty</button>
                 <button onclick="switchTab('records')" id="btn-records" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Records</button>
                 <button onclick="switchTab('history')" id="btn-history" class="nav-link font-bold uppercase text-gray-400 hover:text-white">History</button>
-                <button onclick="switchTab('constitution')" id="btn-constitution" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Const.</button>
+                <button onclick="toggleAdminPanel()" id="admin-toggle" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors whitespace-nowrap hidden">
+                <i class="fa-solid fa-lock mr-1"></i>Admin
+            </button>
+                        <button onclick="switchTab('constitution')" id="btn-constitution" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Const.</button>
             </div>
 
             <!-- Google Doc Link -->
@@ -442,6 +479,36 @@
         </div>
 
         <!-- Records Tab -->
+        <div id="trades-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Trade Log</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">All inter-league trades by season</p>
+            <div id="trades-content" class="space-y-8"></div>
+        </div>
+
+        <div id="playoffs-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Playoff History</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Championship brackets and results</p>
+            <div id="playoffs-content" class="space-y-8"></div>
+        </div>
+
+        <div id="drafts-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Draft History</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Notable picks from past drafts</p>
+            <div id="drafts-content" class="space-y-8"></div>
+        </div>
+
+        <div id="projections-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Season Projections</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Win-loss projections & playoff odds</p>
+            <div id="projections-content" class="space-y-6"></div>
+        </div>
+
+        <div id="waivers-view" class="hidden">
+            <h2 class="oswald text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Waiver Wire</h2>
+            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-8">Weekly free agent activity</p>
+            <div id="waivers-content" class="space-y-8"></div>
+        </div>
+
         <div id="records-view" class="hidden space-y-12">
             <section>
                 <h3 class="oswald text-3xl italic uppercase mb-6 border-l-4 border-[#D4AF37] pl-4">Hall of Fame</h3>
@@ -634,21 +701,249 @@
 
     </main>
 
-    <!-- Team Detail Modal -->
-    <div id="team-modal" class="modal-overlay hidden">
-        <div class="bg-[#111] border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl premium-shadow relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10">
-                <i class="fa-solid fa-xmark text-2xl"></i>
+    <!-- Dynasty Scores Editor Modal -->
+    <div id="scores-editor-modal" class="modal-overlay hidden">
+        <div class="bg-[#111] border border-white/10 w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl premium-shadow relative mx-4">
+            <button onclick="closeScoresEditor()" class="absolute top-4 right-4 md:top-6 md:right-6 text-gray-500 hover:text-white transition-colors z-10">
+                <i class="fa-solid fa-xmark text-xl md:text-2xl"></i>
             </button>
-            <div id="modal-content" class="p-8"></div>
+            <div class="p-4 md:p-8">
+                <h2 class="oswald text-2xl md:text-3xl uppercase italic mb-2">Dynasty Scores Editor</h2>
+                <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-6">Update scores without editing code</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs mono uppercase font-bold text-gray-400 mb-2">Paste standings from Sleeper:</label>
+                        <textarea id="scores-input" 
+                                  class="w-full h-48 bg-white/5 border border-white/10 rounded px-3 py-2 text-white/80 mono text-xs focus:outline-none focus:border-[#D4AF37]/40 resize-vertical"
+                                  placeholder="Southie Thunder Buddies | 384.00 | 74% | Championship, Division&#10;Lake Champlain Champs | 205.75 | 57% | -&#10;Point Pleasant Mothmen | 204.00 | 64% | High Score Holder"></textarea>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded p-4 border border-white/10">
+                        <p class="text-[9px] mono uppercase text-gray-500 font-bold mb-2">Preview:</p>
+                        <div id="scores-preview" class="text-xs text-gray-400 space-y-1 max-h-32 overflow-y-auto font-mono"></div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button onclick="previewScores()" class="flex-1 bg-white/10 hover:bg-white/20 px-4 py-2 rounded text-xs font-bold uppercase tracking-widest border border-white/10 transition-colors">
+                            <i class="fa-solid fa-eye mr-2"></i>Preview
+                        </button>
+                        <button onclick="saveScoresToLocalStorage()" class="flex-1 bg-[#D4AF37]/20 hover:bg-[#D4AF37]/30 text-[#D4AF37] px-4 py-2 rounded text-xs font-bold uppercase tracking-widest border border-[#D4AF37]/30 transition-colors">
+                            <i class="fa-solid fa-floppy-disk mr-2"></i>Save (Browser)
+                        </button>
+                        <button onclick="exportScoresAsJSON()" class="flex-1 bg-white/10 hover:bg-white/20 px-4 py-2 rounded text-xs font-bold uppercase tracking-widest border border-white/10 transition-colors">
+                            <i class="fa-solid fa-download mr-2"></i>Export JSON
+                        </button>
+                    </div>
+                    
+                    <div class="bg-blue-500/10 border border-blue-500/20 rounded p-3">
+                        <p class="text-[9px] mono text-blue-400 mb-1"><i class="fa-solid fa-info-circle mr-1"></i>How it works:</p>
+                        <ul class="text-[8px] text-blue-300 space-y-1 list-disc list-inside">
+                            <li>Format: Team Name | Score | Win% | Bonus (comma-separated)</li>
+                            <li>Click Preview to verify formatting</li>
+                            <li>Save to browser (persists locally)</li>
+                            <li>Export JSON to share with commissioner</li>
+                            <li>Commissioner updates constants.js with new scores</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Commissioner Admin Panel -->
+    <div id="admin-panel-modal" class="modal-overlay hidden">
+        <div class="bg-[#111] border border-white/10 w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl premium-shadow relative mx-4">
+            <button onclick="closeAdminPanel()" class="absolute top-4 right-4 md:top-6 md:right-6 text-gray-500 hover:text-white transition-colors z-10">
+                <i class="fa-solid fa-xmark text-xl md:text-2xl"></i>
+            </button>
+            <div class="p-4 md:p-8">
+                <h2 class="oswald text-2xl md:text-3xl uppercase italic mb-2 text-red-500">Commissioner Tools</h2>
+                <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-6">Manage league data and updates</p>
+                
+                <div class="space-y-4">
+                    <!-- Dynasty Scores Editor -->
+                    <div class="bg-white/5 border border-white/10 rounded p-4">
+                        <h3 class="oswald text-lg uppercase mb-2">Dynasty Scores</h3>
+                        <p class="text-xs text-gray-500 mb-3">Update league rankings and D-Scores</p>
+                        <button onclick="closeAdminPanel(); openScoresEditor()" class="w-full bg-[#D4AF37]/20 hover:bg-[#D4AF37]/30 text-[#D4AF37] px-4 py-2 rounded text-xs font-bold uppercase border border-[#D4AF37]/30 transition-colors">
+                            <i class="fa-solid fa-pen-to-square mr-2"></i>Edit Dynasty Scores
+                        </button>
+                    </div>
+                    
+                    <!-- Constitution Manager -->
+                    <div class="bg-white/5 border border-white/10 rounded p-4">
+                        <h3 class="oswald text-lg uppercase mb-2">Constitution</h3>
+                        <p class="text-xs text-gray-500 mb-3">View/manage league rules and amendments</p>
+                        <button onclick="closeAdminPanel(); switchTab('constitution')" class="w-full bg-white/10 hover:bg-white/20 px-4 py-2 rounded text-xs font-bold uppercase border border-white/10 transition-colors">
+                            <i class="fa-solid fa-scroll mr-2"></i>View Constitution
+                        </button>
+                    </div>
+                    
+                    <!-- Export Data -->
+                    <div class="bg-white/5 border border-white/10 rounded p-4">
+                        <h3 class="oswald text-lg uppercase mb-2">Export Data</h3>
+                        <p class="text-xs text-gray-500 mb-3">Download standings and records</p>
+                        <div class="flex gap-2">
+                            <button onclick="exportStandingsToCSV(currentTab)" class="flex-1 bg-white/10 hover:bg-white/20 px-3 py-2 rounded text-xs font-bold uppercase border border-white/10 transition-colors">
+                                <i class="fa-solid fa-file-csv mr-1"></i>CSV
+                            </button>
+                            <button onclick="exportStandingsToJSON(currentTab)" class="flex-1 bg-white/10 hover:bg-white/20 px-3 py-2 rounded text-xs font-bold uppercase border border-white/10 transition-colors">
+                                <i class="fa-solid fa-code mr-1"></i>JSON
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Links -->
+                    <div class="bg-white/5 border border-white/10 rounded p-4">
+                        <h3 class="oswald text-lg uppercase mb-2">Quick Links</h3>
+                        <div class="space-y-2">
+                            <a href="https://sleeper.app" target="_blank" class="block text-xs text-[#D4AF37] hover:underline">→ Sleeper League Dashboard</a>
+                            <a href="https://docs.google.com/document/d/1JASaVRgcu9-bmoVFDSwpHdhnjpSfgMyd99RjWIJc1OY/edit" target="_blank" class="block text-xs text-[#D4AF37] hover:underline">→ Constitution (Google Doc)</a>
+                            <a href="#" onclick="showAdminInfo(); return false;" class="block text-xs text-[#D4AF37] hover:underline">→ Admin Help & Tips</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin Status -->
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 rounded p-3">
+                        <p class="text-[9px] mono text-emerald-400"><i class="fa-solid fa-check-circle mr-1"></i>Admin Mode Active</p>
+                        <p class="text-[8px] text-emerald-300 mt-1">Password is stored in your browser. Use "View Source" to hide/verify.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Team Detail Modal -->
+    <div id="team-modal" class="modal-overlay hidden">
+        <div class="bg-[#111] border border-white/10 w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-2xl premium-shadow relative mx-4">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+            <div id="modal-content" class="p-4 md:p-8"></div>
+        </div>
+    </div>
+
+    <script>
+        // Display last updated time
+        if (typeof LAST_UPDATED !== 'undefined') {
+            document.getElementById('last-updated-time').textContent = LAST_UPDATED;
+        }
+    </script>
     <script src="js/constants.js"></script>
     <script src="js/app.js"></script>
 
     <script>
-        // Back to Top Button functionality
+
+    // ─── MOBILE MENU ─────────────────────────────────────────────────────
+
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        const ham1 = document.getElementById('ham-1');
+        const ham2 = document.getElementById('ham-2');
+        const ham3 = document.getElementById('ham-3');
+        
+        if (!menu || !ham1) return;
+        
+        menu.classList.toggle('open');
+        
+        if (menu.classList.contains('open')) {
+            ham1.style.transform = 'rotate(45deg) translateY(11px)';
+            ham2.style.opacity = '0';
+            ham3.style.transform = 'rotate(-45deg) translateY(-11px)';
+        } else {
+            ham1.style.transform = '';
+            ham2.style.opacity = '1';
+            ham3.style.transform = '';
+        }
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('mobile-menu');
+        const hamburger = document.querySelector('.hamburger-btn');
+        if (menu && menu.classList.contains('open') && !menu.contains(e.target) && !hamburger?.contains(e.target)) {
+            toggleMobileMenu();
+        }
+    });
+
+
+        
+    // ─── DYNASTY SCORES EDITOR ───────────────────────────────────────────
+
+    let editorScores = [];
+
+    function openScoresEditor() {
+        document.getElementById('scores-editor-modal').classList.remove('hidden');
+        document.body.classList.add('modal-open');
+        
+        const saved = localStorage.getItem('dynasty_scores_draft');
+        if (saved) {
+            document.getElementById('scores-input').value = saved;
+        }
+    }
+
+    function closeScoresEditor() {
+        document.getElementById('scores-editor-modal').classList.add('hidden');
+        document.body.classList.remove('modal-open');
+    }
+
+    function previewScores() {
+        const input = document.getElementById('scores-input').value;
+        const lines = input.split('\n').filter(l => l.trim());
+        const preview = document.getElementById('scores-preview');
+        
+        editorScores = [];
+        preview.innerHTML = '';
+        
+        lines.forEach(line => {
+            const parts = line.split('|').map(p => p.trim());
+            if (parts.length >= 3) {
+                const team = parts[0];
+                const score = parseFloat(parts[1]) || 0;
+                const winPct = parts[2];
+                const bonus = parts[3] || '-';
+                
+                editorScores.push({ team, score, winPct, bonus });
+                
+                const color = score > 200 ? 'text-[#D4AF37]' : (score < 0 ? 'text-red-500' : 'text-white');
+                preview.innerHTML += `<div><span>${team}</span><span class="${color} ml-2 font-bold">${score.toFixed(2)}</span></div>`;
+            }
+        });
+        
+        if (editorScores.length === 0) {
+            preview.innerHTML = '<p class="text-red-500">❌ No valid entries</p>';
+        } else {
+            preview.innerHTML = `<p class="text-[#D4AF37] font-bold mb-2">✅ Found ${editorScores.length} teams</p>` + preview.innerHTML;
+        }
+    }
+
+    function saveScoresToLocalStorage() {
+        const input = document.getElementById('scores-input').value;
+        localStorage.setItem('dynasty_scores_draft', input);
+        localStorage.setItem('dynasty_scores_draft_time', new Date().toLocaleString());
+        
+        alert(`✅ Saved ${editorScores.length} teams\n\nNote: This is a draft. Share the JSON export with your commissioner to make it live.`);
+    }
+
+    function exportScoresAsJSON() {
+        if (editorScores.length === 0) {
+            alert('❌ Click Preview first to validate scores');
+            return;
+        }
+        
+        const json = JSON.stringify(editorScores, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dynasty-scores-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+
+                // Back to Top Button functionality
         const backToTopBtn = document.getElementById('back-to-top');
         
         window.addEventListener('scroll', () => {
@@ -668,3 +963,4 @@
     </script>
 </body>
 </html>
+
