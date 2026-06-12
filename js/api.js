@@ -8,6 +8,18 @@ const API = (() => {
 
     const SLEEPER = 'https://api.sleeper.app/v1';
 
+    // ── cache versioning: bump CACHE_V on breaking format changes ──────────
+    const CACHE_V = 'v2';
+    try {
+        if (localStorage.getItem('climb_cache_v') !== CACHE_V) {
+            Object.keys(localStorage)
+                .filter(k => k.startsWith('c_') || ['fc_values_v1', 'nfl_players_v2',
+                        'nfl_players_cache', 'nfl_players_cache_time'].includes(k))
+                .forEach(k => localStorage.removeItem(k));
+            localStorage.setItem('climb_cache_v', CACHE_V);
+        }
+    } catch (e) { /* private mode etc. */ }
+
     // ── generic cached fetch ────────────────────────────────────────────────
     async function cachedJSON(url, ttlMs, cacheKey) {
         const key = cacheKey || ('c_' + url);
@@ -94,12 +106,16 @@ const API = (() => {
     // Returns everything a view needs for one tier, with derived team objects.
     const _ctxCache = {};
     async function leagueContext(tier) {
-        if (_ctxCache[tier]) return _ctxCache[tier];
+        const hit = _ctxCache[tier];
+        if (hit && Date.now() - hit.t < 2 * MIN) return hit.ctx;
         const id = LEAGUE_MAP[tier].id;
         const [state, lg, us, ro] = await Promise.all([nflState(), league(id), users(id), rosters(id)]);
 
-        // figure out how far the season has progressed for THIS league
-        const inSeason = lg.status === 'in_season' || lg.status === 'post_season';
+        // figure out how far the season has progressed for THIS league.
+        // NOTE: Sleeper flags dynasty leagues 'in_season' months early, so we
+        // also require the NFL itself to be in regular/post season.
+        const nflLive = ['regular', 'post'].includes(state.season_type);
+        const inSeason = nflLive && (lg.status === 'in_season' || lg.status === 'post_season');
         const currentWeek = inSeason ? Math.max(1, Math.min(state.week || lg.settings.leg || 1, 18)) : 1;
         const completedWeeks = inSeason ? Math.max(0, currentWeek - 1) : 0;
 
@@ -116,7 +132,8 @@ const API = (() => {
             }
             return {
                 rosterId: r.roster_id, user: u, roster: r, name,
-                display: u?.display_name || 'Unknown', avatar: u?.avatar || null,
+                display: u?.display_name || 'Unknown',
+                avatar: u?.metadata?.avatar || u?.avatar || null, // team logo first, profile fallback
                 wins: r.settings.wins, losses: r.settings.losses, ties: r.settings.ties || 0,
                 fpts: r.settings.fpts + (r.settings.fpts_decimal || 0) / 100,
                 fptsAgainst: (r.settings.fpts_against || 0) + (r.settings.fpts_against_decimal || 0) / 100,
@@ -130,7 +147,7 @@ const API = (() => {
 
         const ctx = { tier, id, league: lg, users: us, rosters: ro, teams, state,
                       inSeason, currentWeek, completedWeeks, weeklyMatchups };
-        _ctxCache[tier] = ctx;
+        _ctxCache[tier] = { t: Date.now(), ctx };
         return ctx;
     }
 
@@ -162,7 +179,7 @@ const API = (() => {
                 return {
                     ownerId: r.owner_id,
                     display: u?.display_name || 'Unknown',
-                    avatar: u?.avatar || null,
+                    avatar: u?.metadata?.avatar || u?.avatar || null, // that season's team logo
                     teamName: u?.metadata?.team_name || u?.display_name || `Roster ${r.roster_id}`,
                     rosterId: r.roster_id, division: r.settings.division || null,
                     wins: r.settings.wins || 0, losses: r.settings.losses || 0, ties: r.settings.ties || 0,
@@ -181,6 +198,13 @@ const API = (() => {
         return seasons; // newest first
     }
 
+    // full season of matchups for a (usually historical) league — long cache
+    async function seasonMatchups(id) {
+        const weeks = Array.from({ length: 17 }, (_, i) => i + 1);
+        return Promise.all(weeks.map(w =>
+            cachedJSON(`${SLEEPER}/league/${id}/matchups/${w}`, 30 * DAY, `hm_${id}_${w}`).catch(() => [])));
+    }
+
     async function allHistory() {
         const [a, b, c] = await Promise.all(TIER_ORDER.map(t => tierHistory(t)));
         return { top: a, mid: b, cellar: c };
@@ -188,5 +212,5 @@ const API = (() => {
 
     return { nflState, playerMap, league, users, rosters, matchups, tradedPicks,
              winnersBracket, allTransactions, allMatchups, trending, fcValues,
-             leagueContext, allLeagueContexts, tierHistory, allHistory };
+             leagueContext, allLeagueContexts, tierHistory, allHistory, seasonMatchups };
 })();

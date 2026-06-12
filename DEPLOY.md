@@ -1,6 +1,6 @@
 # Deploying the Overhauled Site
 
-This folder contains the complete new site: `index.html` + `js/constants.js`, `js/api.js`, `js/dscore.js`, `js/app.js`.
+This folder contains the complete new site: `index.html` + `js/constants.js`, `js/api.js`, `js/dscore.js`, `js/recap.js`, `js/app.js`.
 
 ## Steps
 
@@ -22,6 +22,7 @@ This folder contains the complete new site: `index.html` + `js/constants.js`, `j
 - **Trending players** — Sleeper-wide adds/drops, flagged when available in your tiers
 - **Owner careers** (Legacy → Owners) — true per-owner records rebuilt season-by-season, immune to roster-slot swaps
 - **D-Score Auto-Audit** (Dynasty → Auto-Audit) — every Amendment I component computed from Sleeper history; compare vs official books, yellow = disagreement
+- **Recap section** — preseason preview (market storylines + superlatives), weekly recap with awards (auto-activates Week 1, week selector), and season wraps for any completed year (champion, game of the year, streaks, final table)
 
 ## What's still manual (in js/constants.js)
 

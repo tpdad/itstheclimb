@@ -4,7 +4,8 @@
 // ═════════════════════════════════════════════════════════════════════════
 
 const APP = { section: 'hq', tier: 'top', wireTab: 'activity', legacyTab: 'records',
-              labTier: 'top', labA: null, labB: null, labSelA: new Set(), labSelB: new Set() };
+              labTier: 'top', labA: null, labB: null, labSelA: new Set(), labSelB: new Set(),
+              recapTab: null, recapTier: 'top', recapWeek: null, recapSeason: null };
 
 const $view = () => document.getElementById('view');
 
@@ -12,8 +13,9 @@ const $view = () => document.getElementById('view');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 const fmtVal = v => v >= 1000 ? (v / 1000).toFixed(1) + 'K' : String(Math.round(v));
 const fmtDate = ts => new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const avatarUrl = av => String(av).startsWith('http') ? av : `https://sleepercdn.com/avatars/thumbs/${av}`;
 const avatarImg = (av, cls) => av
-    ? `<img src="https://sleepercdn.com/avatars/thumbs/${av}" class="${cls} object-cover" loading="lazy">`
+    ? `<img src="${avatarUrl(av)}" class="${cls} object-cover" loading="lazy" onerror="this.outerHTML='<div class=\'${cls} flex items-center justify-center bg-white/5\'><i class=\'fa-solid fa-shield-halved text-slate-600\'></i></div>'">`
     : `<div class="${cls} flex items-center justify-center bg-white/5"><i class="fa-solid fa-shield-halved text-slate-600"></i></div>`;
 
 function spinner(msg) {
@@ -105,17 +107,39 @@ function avgRosterAge(valued) {
 }
 
 // ─── NAVIGATION ─────────────────────────────────────────────────────────────
-const SECTIONS = ['hq', 'leagues', 'dynasty', 'wire', 'analytics', 'lab', 'legacy'];
-function go(section, opt) {
+const SECTIONS = ['hq', 'leagues', 'recap', 'dynasty', 'wire', 'analytics', 'lab', 'legacy'];
+const VALID_OPTS = { leagues: TIER_ORDER, wire: ['activity', 'trending'],
+                     legacy: ['records', 'history', 'owners', 'constitution'],
+                     recap: ['preview', 'weekly', 'season'] };
+const currentOpt = sec => sec === 'leagues' ? APP.tier : sec === 'wire' ? APP.wireTab
+                        : sec === 'legacy' ? APP.legacyTab
+                        : sec === 'recap' ? (APP.recapTab || 'preview') : '';
+
+function go(section, opt, fromHash) {
+    if (opt && VALID_OPTS[section] && !VALID_OPTS[section].includes(opt)) opt = null;
     APP.section = section;
     if (section === 'leagues' && opt) APP.tier = opt;
     if (section === 'wire' && opt) APP.wireTab = opt;
     if (section === 'legacy' && opt) APP.legacyTab = opt;
+    if (section === 'recap' && opt) APP.recapTab = opt;
     document.querySelectorAll('[data-nav]').forEach(b =>
         b.classList.toggle('nav-active', b.dataset.nav === section));
+    // shareable deep links + working back button
+    if (!fromHash) {
+        const h = '#' + section + (VALID_OPTS[section] ? '/' + currentOpt(section) : '');
+        if (location.hash !== h) location.hash = h; // fires hashchange → no-op below
+    }
     window.scrollTo({ top: 0 });
     render();
 }
+
+function applyHash(initial) {
+    const [sec, opt] = location.hash.replace(/^#/, '').split('/');
+    if (!SECTIONS.includes(sec)) { if (initial) go('hq'); return; }
+    if (!initial && sec === APP.section && (!opt || opt === currentOpt(sec))) return; // already there
+    go(sec, opt, true);
+}
+window.addEventListener('hashchange', () => applyHash(false));
 
 async function render() {
     const v = $view();
@@ -123,6 +147,7 @@ async function render() {
         switch (APP.section) {
             case 'hq':        return await renderHQ(v);
             case 'leagues':   return await renderLeague(v);
+            case 'recap':     return await renderRecap(v);
             case 'dynasty':   return await renderDynasty(v);
             case 'wire':      return await renderWire(v);
             case 'analytics': return await renderAnalytics(v);
@@ -1193,5 +1218,5 @@ window.addEventListener('scroll', () => {
 window.onclick = e => { if (e.target.id === 'modal') closeModal(); };
 window.onload = () => {
     API.playerMap().catch(() => {}); // warm the cache
-    go('hq');
+    applyHash(true); // honors deep links, falls back to HQ
 };
