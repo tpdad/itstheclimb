@@ -4,667 +4,280 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>It's the Climb | DB4 Sports Official Portal</title>
+    <meta name="description" content="It's the Climb — 19-team fantasy football dynasty league. Three tiers. One summit.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%230B0E14'/%3E%3Cg transform='rotate(-16 34 16)'%3E%3Cellipse cx='34' cy='16' rx='8' ry='5.2' fill='%23B06A39'/%3E%3Cpath d='M29.5 16 H38.5 M31.3 14.6 V17.4 M33.1 14.6 V17.4 M34.9 14.6 V17.4 M36.7 14.6 V17.4' stroke='%23F2E4C8' stroke-width='1'/%3E%3C/g%3E%3Cpath d='M3 39 L13 26 L19 32 L26 23 L34 32 L40 26 L45 39 Z' fill='%23AEB8C4' opacity='0.28'/%3E%3Cpath d='M8 39 L21.5 15 L35 39 Z' fill='%23E8C547'/%3E%3Cpath d='M21.5 15 L25.3 21.8 L23.2 21 L21.6 22.4 L19.7 21 L17.8 21.8 Z' fill='%23F7F2E4'/%3E%3Cpath d='M21.5 15 V8.5' stroke='%23F7F2E4' stroke-width='1.3'/%3E%3Cpath d='M21.5 8.5 L27 10.4 L21.5 12.3 Z' fill='%23E8C547'/%3E%3Cpath d='M3 39 H45' stroke='%23C97B4A' stroke-width='1.6'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Oswald:wght@500;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,700;0,900;1,900&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
         :root {
-            --db4-gold: #D4AF37;
-            --db4-emerald: #008542;
-            --db4-silver: #C0C0C0;
-            --db4-rust: #8B4513;
-            --bg-dark: #0A0B0E;
-            --card-bg: #141418;
-            --card-border: #222228;
+            --summit: #E8C547;
+            --ridge: #AEB8C4;
+            --basecamp: #C97B4A;
+            --bg: #0B0E14;
+            --panel: #12161F;
+            --line: rgba(255,255,255,0.07);
         }
 
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: #e5e5e5;
+            background-color: var(--bg);
+            color: #DCE2EA;
             overflow-x: hidden;
         }
         body.modal-open { overflow: hidden; }
 
-        .oswald { font-family: 'Oswald', sans-serif; }
+        /* topographic contour backdrop */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: -2;
+            background:
+                radial-gradient(ellipse 80% 50% at 70% -10%, rgba(232,197,71,0.06), transparent 60%),
+                radial-gradient(ellipse 60% 40% at 10% 110%, rgba(201,123,74,0.05), transparent 60%),
+                var(--bg);
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0; z-index: -1; opacity: 0.05; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Cg fill='none' stroke='%23E8C547' stroke-width='1'%3E%3Cpath d='M0 520 Q150 430 300 470 T600 440'/%3E%3Cpath d='M0 470 Q160 380 310 420 T600 390'/%3E%3Cpath d='M0 420 Q170 330 320 370 T600 340'/%3E%3Cpath d='M0 370 Q180 280 330 320 T600 290'/%3E%3Cpath d='M0 320 Q190 230 340 270 T600 240'/%3E%3Cpath d='M0 270 Q200 180 350 220 T600 190'/%3E%3Cpath d='M0 220 Q210 130 360 170 T600 140'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 600px;
+        }
+
+        .display { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; letter-spacing: -0.02em; }
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Scroll progress rope */
+        .grad-gold {
+            background: linear-gradient(100deg, #F5DC7E 0%, var(--summit) 45%, #B8860B 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+
+        .panel {
+            background: linear-gradient(170deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005));
+            background-color: var(--panel);
+            border: 1px solid var(--line);
+        }
+        .panel-gold {
+            background: linear-gradient(150deg, rgba(232,197,71,0.10) 0%, var(--panel) 55%);
+            border: 1px solid rgba(232,197,71,0.3);
+            box-shadow: 0 0 35px rgba(232,197,71,0.07);
+        }
+
+        /* nav */
+        .glass { background: rgba(11,14,20,0.82); backdrop-filter: blur(14px); }
+        [data-nav] {
+            font-family: 'Archivo', sans-serif; font-weight: 700;
+            font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+            color: #8B94A3; padding: 8px 2px; position: relative;
+            transition: color 0.2s; white-space: nowrap;
+        }
+        [data-nav]:hover { color: #fff; }
+        [data-nav].nav-active { color: #fff; }
+        [data-nav].nav-active::after {
+            content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+            background: linear-gradient(90deg, var(--summit), transparent);
+        }
+
+        /* mobile bottom nav */
+        #mobile-nav { display: none; }
+        @media (max-width: 768px) {
+            #desktop-nav { display: none; }
+            #mobile-nav {
+                display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+                border-top: 1px solid var(--line);
+            }
+            #mobile-nav [data-nav] { flex: 1; text-align: center; padding: 10px 0 max(10px, env(safe-area-inset-bottom)); font-size: 8px; letter-spacing: 0.08em; }
+            #mobile-nav [data-nav] i { display: block; font-size: 15px; margin-bottom: 3px; }
+            #mobile-nav [data-nav].nav-active { color: var(--summit); }
+            #mobile-nav [data-nav].nav-active::after { display: none; }
+            body { padding-bottom: 72px; }
+        }
+
+        /* pills */
+        .pill {
+            font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+            padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+            color: #98A2B3; background: rgba(255,255,255,0.02); transition: all 0.2s; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .pill:hover { border-color: rgba(255,255,255,0.25); color: #fff; }
+        .pill-active { border-color: var(--summit); color: var(--summit); background: rgba(232,197,71,0.08); }
+
+        .input-dark {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 10px;
+            padding: 9px 13px; font-size: 13px; color: #E5EAF0; outline: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .input-dark:focus { border-color: rgba(232,197,71,0.5); }
+        select.input-dark option { background: #12161F; }
+
+        .badge {
+            width: 22px; height: 22px; border-radius: 50%; font-size: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid var(--line); cursor: help; transition: transform 0.15s;
+        }
+        .badge:hover { transform: translateY(-2px); }
+        .releg-pulse { animation: relegPulse 2s infinite; }
+        @keyframes relegPulse { 0%,100% { opacity: 0.75; } 50% { opacity: 1; box-shadow: 0 0 10px rgba(239,68,68,0.45); } }
+
+        .stat-label { display:block; font-family:'JetBrains Mono',monospace; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.18em; color: #67707E; }
+        .stat-num { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 17px; }
+
+        .tx-tag {
+            font-family:'JetBrains Mono',monospace; font-size: 8.5px; letter-spacing: 0.12em;
+            padding: 2.5px 7px; border-radius: 5px; display: inline-flex; align-items: center;
+        }
+
+        .immunity-tag {
+            font-family:'JetBrains Mono',monospace; font-size: 9px; font-weight: 700; text-transform: uppercase;
+            color: #34D399; background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25);
+            padding: 3px 8px; border-radius: 6px; animation: immPulse 2.5s infinite; cursor: help;
+        }
+        @keyframes immPulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+
+        .champ-banner {
+            background: linear-gradient(160deg, #06301C 0%, #0B5230 100%);
+            border-left: 10px solid var(--summit);
+            position: relative; overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+        }
+        .champ-banner::after {
+            content: 'CHAMPION'; position: absolute; right: -8px; bottom: -8px;
+            font-family: 'Archivo'; font-weight: 900; font-style: italic; font-size: 52px;
+            opacity: 0.07; transform: rotate(-8deg);
+        }
+
+        .timeline-seg::before {
+            content: ''; position: absolute; left: 6px; top: 18px; bottom: 0; width: 1.5px;
+            background: linear-gradient(to bottom, var(--summit), rgba(232,197,71,0.15));
+        }
+
+        .const-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .const-body.open { max-height: 2200px; }
+
+        /* scroll rope + back to top */
         #scroll-rope {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 2px;
-            height: 0%;
-            background: linear-gradient(to bottom, #D4AF37, #8B6914);
-            z-index: 999;
+            position: fixed; left: 0; top: 0; width: 2.5px; height: 0%; z-index: 90;
+            background: linear-gradient(to bottom, var(--summit), var(--basecamp));
             transition: height 0.1s linear;
         }
-        #altitude-marker {
-            position: fixed;
-            left: 8px;
-            bottom: 24px;
-            z-index: 998;
-            writing-mode: vertical-rl;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
-            color: rgba(212,175,55,0.5);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            pointer-events: none;
-        }
-
-        /* Back to Top Button */
         #back-to-top {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 99;
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #D4AF37, #b8860b);
-            border: 2px solid rgba(212,175,55,0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
-        }
-        #back-to-top.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        #back-to-top:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(212,175,55,0.5);
-        }
-        #back-to-top i {
-            color: #000;
-            font-size: 20px;
-        }
-
-        .tier-top { border-top: 4px solid var(--db4-gold); }
-        .tier-mid { border-top: 4px solid var(--db4-silver); }
-        .tier-cellar { border-top: 4px solid var(--db4-rust); }
-
-        .glass {
-            background: rgba(20, 20, 24, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--card-border);
-        }
-
-        .premium-shadow { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.7); }
-
-        .rank-gold { color: var(--db4-gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
-
-        .gold-card {
-            background: linear-gradient(145deg, rgba(212, 175, 55, 0.12) 0%, rgba(20, 20, 24, 0.9) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.1);
-        }
-
-        .badge-icon {
-            width: 22px; height: 22px;
+            position: fixed; bottom: 88px; right: 18px; z-index: 70;
+            width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+            background: linear-gradient(135deg, var(--summit), #B8860B);
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; font-size: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: transform 0.2s;
-            cursor: help;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+            box-shadow: 0 6px 18px rgba(232,197,71,0.3);
         }
-        .badge-icon:hover { transform: translateY(-2px); }
-
-        .banner-champion {
-            background: linear-gradient(to bottom, #004d26 0%, #008542 100%);
-            border-left: 12px solid #d4af37;
-            position: relative; overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
-        .banner-champion::after {
-            content: "CHAMPION";
-            position: absolute; right: -10px; bottom: -5px;
-            font-family: 'Oswald'; font-size: 50px; font-weight: 900;
-            opacity: 0.08; transform: rotate(-10deg);
-        }
-
-        .tab-active { border-bottom: 2px solid var(--db4-gold); color: white; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
-
-        .nav-link {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            white-space: nowrap;
-        }
-        .nav-link.active::after {
-            content: '';
-            position: absolute; bottom: -2px; left: 0;
-            width: 100%; height: 2px;
-            background: var(--db4-gold);
-        }
+        @media (min-width: 769px) { #back-to-top { bottom: 24px; right: 24px; } }
+        #back-to-top.show { opacity: 1; visibility: visible; }
+        #back-to-top:hover { transform: translateY(-3px); }
+        #back-to-top i { color: #0B0E14; font-size: 17px; }
 
         .modal-overlay {
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
             position: fixed; inset: 0; z-index: 100;
-            display: flex; align-items: center; justify-content: center;
-            padding: 1rem;
+            background: rgba(4,6,10,0.88); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
         }
         .modal-overlay.hidden { display: none; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0A0B0E; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-
-        .starter-slot { border-left: 3px solid #333; transition: border-color 0.2s; }
-        .starter-slot:hover { border-left-color: var(--db4-gold); }
-
-        .immunity-badge { animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-
-        .relegation-badge { animation: dangerPulse 2s infinite; }
-        @keyframes dangerPulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; box-shadow: 0 0 8px rgba(239,68,68,0.5); }
-            100% { opacity: 0.8; }
-        }
-
-        .dynasty-rank-pill {
-            display: inline-flex; align-items: center; gap: 4px;
-            font-size: 10px; font-weight: 900; text-transform: uppercase;
-            padding: 2px 6px; border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.1);
-            letter-spacing: 0.05em;
-        }
-        .dynasty-rank-pill.gold { background: rgba(212,175,55,0.2); color: #D4AF37; border-color: rgba(212,175,55,0.3); }
-        .dynasty-rank-pill.default { background: rgba(255,255,255,0.05); color: #9ca3af; border-color: rgba(255,255,255,0.08); }
-
-        /* D-Score breakdown accordion */
-        .dscore-breakdown { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
-        .dscore-breakdown.open { max-height: 400px; }
-
-        /* Constitution styles */
-        .constitution-article { border-left: 2px solid #222228; transition: border-color 0.2s; }
-        .constitution-article:hover { border-left-color: rgba(212,175,55,0.4); }
-        .constitution-article.amendment { border-left-color: rgba(212,175,55,0.25); }
-        .constitution-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-        .constitution-body.open { max-height: 2000px; }
-
-        /* Timeline */
-        .timeline-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: linear-gradient(to bottom, transparent, #D4AF37 10%, #D4AF37 90%, transparent); transform: translateX(-50%); }
-        .timeline-node { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #D4AF37; background: #0A0B0E; flex-shrink: 0; }
-
-        /* Dynasty victor banner */
-        .dynasty-banner {
-            background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(10,11,14,0) 60%);
-            border: 1px solid rgba(212,175,55,0.2);
-            position: relative; overflow: hidden;
-        }
-        .dynasty-banner::before {
-            content: "1ST DYNASTY";
-            position: absolute; right: -20px; top: 50%; transform: translateY(-50%) rotate(90deg);
-            font-family: 'Oswald'; font-size: 60px; font-weight: 900;
-            opacity: 0.03; white-space: nowrap; pointer-events: none;
-        }
-
-        /* Trigger progress bar */
-        .trigger-bar { height: 4px; background: #222228; border-radius: 2px; overflow: hidden; }
-        .trigger-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
-
-        /* Sloppy exception badge */
-        .sloppy-badge { background: rgba(139,69,19,0.2); color: #cd853f; border-color: rgba(139,69,19,0.3); }
-
-        /* Mobile nav responsive sizing */
-        @media (max-width: 1024px) {
-            .nav-link {
-                font-size: 11px;
-                padding: 0 4px;
-                letter-spacing: 0.05em;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-link {
-                font-size: 10px;
-                padding: 0 3px;
-                letter-spacing: 0;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .nav-link {
-                font-size: 9px;
-                padding: 0 2px;
-            }
-        }
-
-        /* Rankings table mobile responsive */
-        .rankings-table-wrapper {
-            overflow-x: auto;
-        }
-
-        @media (max-width: 768px) {
-            .rankings-table-wrapper {
-                -webkit-overflow-scrolling: touch;
-            }
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2A313D; border-radius: 8px; }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen">
 
-    <!-- Back to Top Button -->
-    <div id="back-to-top" onclick="scrollToTop()">
-        <i class="fa-solid fa-chevron-up"></i>
-    </div>
-
-    <!-- Scroll Rope -->
     <div id="scroll-rope"></div>
-    <div id="altitude-marker">ALT: 0%</div>
+    <div id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fa-solid fa-chevron-up"></i></div>
 
-    <!-- Header Navigation -->
-    <nav class="sticky top-0 z-50 glass border-b border-white/5 py-3 sm:py-4">
-        <div class="max-w-7xl mx-auto px-2 sm:px-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
-            <!-- Logo -->
-            <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                <!-- New Football-Forward Logo -->
-                <svg width="40" height="40" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 drop-shadow-lg" style="width:36px; height:36px;">
-                    <!-- Background -->
-                    <rect width="44" height="44" rx="8" fill="#0A0B0E"/>
-                    <rect width="44" height="44" rx="8" fill="url(#logoBg)" opacity="0.15"/>
-                    
-                    <!-- Football -->
-                    <ellipse cx="22" cy="16" rx="10" ry="7" fill="url(#footballGrad)"/>
-                    <!-- Laces -->
-                    <line x1="22" y1="10" x2="22" y2="22" stroke="#D4AF37" stroke-width="1.5" opacity="0.8"/>
-                    <circle cx="20" cy="12" r="1" fill="#D4AF37"/>
-                    <circle cx="24" cy="12" r="1" fill="#D4AF37"/>
-                    <circle cx="20" cy="15" r="1" fill="#D4AF37"/>
-                    <circle cx="24" cy="15" r="1" fill="#D4AF37"/>
-                    <circle cx="20" cy="18" r="1" fill="#D4AF37"/>
-                    <circle cx="24" cy="18" r="1" fill="#D4AF37"/>
-                    
-                    <!-- Rising Trend Lines (climbing upward) -->
-                    <path d="M 8 28 L 14 22" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
-                    <path d="M 14 22 L 20 16" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
-                    <path d="M 20 16 L 26 10" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
-                    
-                    <!-- Success marker -->
-                    <circle cx="30" cy="8" r="4" fill="none" stroke="#D4AF37" stroke-width="2"/>
-                    <path d="M 28 8 L 29 9 L 31 7" stroke="#D4AF37" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    
-                    <!-- Star accent -->
-                    <polygon points="22,32 24,38 31,38 26,42 28,48 22,44 16,48 18,42 13,38 20,38" fill="#D4AF37" opacity="0.7"/>
-                    
-                    <!-- Border glow -->
-                    <rect x="0.5" y="0.5" width="43" height="43" rx="7.5" stroke="#D4AF37" stroke-width="0.5" opacity="0.3"/>
-                    
+    <!-- ─── HEADER ─────────────────────────────────────────────────────── -->
+    <nav class="glass sticky top-0 z-50 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <!-- mark -->
+            <button onclick="go('hq')" class="flex items-center gap-3 flex-shrink-0 text-left">
+                <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="footballGrad" x1="12" y1="10" x2="32" y2="22" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#8B4513"/>
-                            <stop offset="50%" stop-color="#A0522D"/>
-                            <stop offset="100%" stop-color="#654321"/>
+                        <linearGradient id="lgGold" x1="14" y1="12" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#F5DC7E"/><stop offset="55%" stop-color="#E8C547"/><stop offset="100%" stop-color="#9A7416"/>
                         </linearGradient>
-                        <linearGradient id="logoBg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#D4AF37"/>
-                            <stop offset="100%" stop-color="#000"/>
+                        <linearGradient id="lgBall" x1="26" y1="11" x2="42" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#D98B57"/><stop offset="100%" stop-color="#9C5B2F"/>
                         </linearGradient>
                     </defs>
+                    <rect width="48" height="48" rx="11" fill="#0B0E14"/>
+                    <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="10.25" stroke="#E8C547" stroke-opacity="0.4" stroke-width="1.5"/>
+                    <!-- football rising like a sun -->
+                    <g transform="rotate(-16 34 16)">
+                        <ellipse cx="34" cy="16" rx="8" ry="5.2" fill="url(#lgBall)"/>
+                        <path d="M29.5 16 H38.5" stroke="#F2E4C8" stroke-width="1.1" stroke-linecap="round"/>
+                        <path d="M31.3 14.6 V17.4 M33.1 14.6 V17.4 M34.9 14.6 V17.4 M36.7 14.6 V17.4" stroke="#F2E4C8" stroke-width="0.9" stroke-linecap="round"/>
+                    </g>
+                    <!-- back ridge (silver) -->
+                    <path d="M3 39 L13 26 L19 32 L26 23 L34 32 L40 26 L45 39 Z" fill="#AEB8C4" opacity="0.28"/>
+                    <!-- summit peak (gold) -->
+                    <path d="M8 39 L21.5 15 L35 39 Z" fill="url(#lgGold)"/>
+                    <path d="M21.5 15 L25.3 21.8 L23.2 21 L21.6 22.4 L19.7 21 L17.8 21.8 Z" fill="#F7F2E4"/>
+                    <!-- summit flag -->
+                    <path d="M21.5 15 V8.5" stroke="#F7F2E4" stroke-width="1.3" stroke-linecap="round"/>
+                    <path d="M21.5 8.5 L27 10.4 L21.5 12.3 Z" fill="#E8C547"/>
+                    <!-- basecamp line -->
+                    <path d="M3 39 H45" stroke="#C97B4A" stroke-width="1.6" opacity="0.85"/>
                 </svg>
                 <div class="hidden sm:block">
-                    <h1 class="oswald text-xl sm:text-2xl tracking-tighter uppercase italic leading-none">
-                        <span class="text-white">It's the</span>
-                        <span class="rank-gold"> Climb</span>
-                    </h1>
-                    <p class="text-[7px] sm:text-[8px] mono uppercase tracking-[0.1em] sm:tracking-[0.2em] text-gray-600 leading-none mt-0.5">DB4 Sports · Fantasy Dynasty</p>
+                    <h1 class="display text-xl uppercase leading-none"><span class="text-white">It's the</span> <span class="grad-gold">Climb</span></h1>
+                    <p class="mono text-[7.5px] uppercase tracking-[0.3em] text-slate-600 mt-1">DB4 Sports · Dynasty · Est. 2023</p>
                 </div>
-            </div>
+            </button>
 
-            <!-- Navigation Buttons - Scrollable on mobile, flex on desktop -->
-            <div class="flex gap-1 sm:gap-2 md:gap-3 lg:gap-6 overflow-x-auto pb-1 sm:pb-0 max-w-full">
-                <button onclick="switchTab('top')" id="btn-top" class="nav-link font-bold uppercase text-gray-400 hover:text-white active">League HQ</button>
-                <button onclick="switchTab('mid')" id="btn-mid" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Mid</button>
-                <button onclick="switchTab('cellar')" id="btn-cellar" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Cellar</button>
-                <button onclick="switchTab('rankings')" id="btn-rankings" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Dynasty</button>
-                <button onclick="switchTab('records')" id="btn-records" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Records</button>
-                <button onclick="switchTab('history')" id="btn-history" class="nav-link font-bold uppercase text-gray-400 hover:text-white">History</button>
-                <button onclick="switchTab('constitution')" id="btn-constitution" class="nav-link font-bold uppercase text-gray-400 hover:text-white">Const.</button>
+            <!-- desktop nav -->
+            <div id="desktop-nav" class="flex items-center gap-5 lg:gap-7 overflow-x-auto">
+                <button data-nav="hq" onclick="go('hq')">HQ</button>
+                <button data-nav="leagues" onclick="go('leagues')">Leagues</button>
+                <button data-nav="dynasty" onclick="go('dynasty')">Dynasty</button>
+                <button data-nav="wire" onclick="go('wire')">The Wire</button>
+                <button data-nav="analytics" onclick="go('analytics')">Analytics</button>
+                <button data-nav="lab" onclick="go('lab')">Trade Lab</button>
+                <button data-nav="legacy" onclick="go('legacy')">Legacy</button>
             </div>
-
-            <!-- Google Doc Link -->
-            <a href="https://docs.google.com/document/d/1JASaVRgcu9-bmoVFDSwpHdhnjpSfgMyd99RjWIJc1OY/edit?tab=t.0" target="_blank"
-               class="bg-white/5 hover:bg-white/10 px-2 sm:px-4 py-1 sm:py-2 rounded text-[8px] sm:text-xs font-bold uppercase tracking-tighter border border-white/10 transition-colors whitespace-nowrap flex-shrink-0">
-                <i class="fa-solid fa-scroll mr-1 sm:mr-2"></i><span class="hidden sm:inline">Google Doc</span><span class="sm:hidden">Docs</span>
-            </a>
         </div>
     </nav>
 
-    <!-- Main Content Area -->
-    <main id="app-content" class="max-w-7xl mx-auto px-4 py-8">
+    <!-- mobile bottom nav -->
+    <div id="mobile-nav" class="glass">
+        <button data-nav="hq" onclick="go('hq')"><i class="fa-solid fa-mountain"></i>HQ</button>
+        <button data-nav="leagues" onclick="go('leagues')"><i class="fa-solid fa-layer-group"></i>Leagues</button>
+        <button data-nav="dynasty" onclick="go('dynasty')"><i class="fa-solid fa-crown"></i>Dynasty</button>
+        <button data-nav="wire" onclick="go('wire')"><i class="fa-solid fa-tower-broadcast"></i>Wire</button>
+        <button data-nav="analytics" onclick="go('analytics')"><i class="fa-solid fa-chart-line"></i>Stats</button>
+        <button data-nav="lab" onclick="go('lab')"><i class="fa-solid fa-flask"></i>Lab</button>
+        <button data-nav="legacy" onclick="go('legacy')"><i class="fa-solid fa-book"></i>Legacy</button>
+    </div>
 
-        <!-- Dynasty Victor Banner (shown on league tabs) -->
-        <div id="dynasty-banner-section" class="mb-8 dynasty-banner rounded-xl p-3 sm:p-4 animate-fade">
-            <!-- Top row: icon + title + score -->
-            <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
-                <div class="text-[#D4AF37] text-xl flex-shrink-0"><i class="fa-solid fa-mountain"></i></div>
-                <div class="min-w-0 flex-grow">
-                    <p class="text-[9px] uppercase tracking-widest text-gray-500 font-bold mono leading-tight">1st Dynasty · Season 4 · 2023–Present</p>
-                    <p class="oswald text-base uppercase italic leading-tight">Leader: <span class="rank-gold">Southie Thunder Buddies</span></p>
-                </div>
-                <div class="flex-shrink-0 text-right">
-                    <span class="mono text-xl font-bold rank-gold leading-none block">384.00</span>
-                    <span class="text-gray-600 text-[9px] mono">D-PTS</span>
-                </div>
-            </div>
-            <!-- Triggers -->
-            <div class="border-t border-white/5 pt-3">
-                <p class="text-[9px] uppercase tracking-widest text-gray-500 font-bold mono mb-2">Redraft Triggers</p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <div>
-                        <div class="flex justify-between text-[9px] mono text-gray-500 mb-0.5">
-                            <span class="truncate pr-1">&gt;½ champs (1 team, Yr4+)</span>
-                            <span class="text-yellow-600 flex-shrink-0">1/3</span>
-                        </div>
-                        <div class="trigger-bar"><div class="trigger-fill bg-yellow-600" style="width:33%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-[9px] mono text-gray-500 mb-0.5">
-                            <span class="truncate pr-1">6 combined champs (2 teams)</span>
-                            <span class="text-green-700 flex-shrink-0">3/6</span>
-                        </div>
-                        <div class="trigger-bar"><div class="trigger-fill bg-green-800" style="width:50%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-[9px] mono text-gray-500 mb-0.5">
-                            <span class="truncate pr-1">Season 10 vote</span>
-                            <span class="text-gray-600 flex-shrink-0">Yr 4/10</span>
-                        </div>
-                        <div class="trigger-bar"><div class="trigger-fill bg-gray-600" style="width:40%"></div></div>
-                    </div>
-                </div>
-            </div>
+    <!-- ─── MAIN ───────────────────────────────────────────────────────── -->
+    <main id="view" class="max-w-7xl mx-auto px-4 py-8 sm:py-10"></main>
+
+    <footer class="max-w-7xl mx-auto px-4 pb-10 pt-4">
+        <div class="border-t border-white/5 pt-5 flex flex-col sm:flex-row justify-between gap-2">
+            <p class="mono text-[9px] uppercase tracking-[0.25em] text-slate-700">It's the Climb · 1st Dynasty · 2023–Present</p>
+            <p class="mono text-[9px] uppercase tracking-[0.25em] text-slate-700">Live data: Sleeper API · FantasyCalc</p>
         </div>
+    </footer>
 
-        <!-- Dashboard Header -->
-        <div id="header-section" class="mb-12">
-            <h2 id="tier-title" class="oswald text-4xl sm:text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter">THE TOP LEVEL</h2>
-            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2">
-                <span id="tier-subtitle" class="text-gray-400 font-medium tracking-widest uppercase text-xs sm:text-sm">Green Jacket & Gold Jacket Divisions</span>
-                <span class="w-12 h-px bg-white/20 hidden sm:inline"></span>
-                <span id="team-count" class="text-xs bg-white/10 px-2 py-1 rounded mono">12 TEAMS</span>
-            </div>
-        </div>
-
-        <!-- Dynamic Content -->
-        <div id="live-view" class="space-y-8">
-            <div id="loading-spinner" class="flex flex-col items-center py-20">
-                <div class="w-12 h-12 border-4 border-white/10 border-t-[#D4AF37] rounded-full animate-spin mb-4"></div>
-                <p class="text-sm uppercase tracking-widest animate-pulse mono">Syncing Sleeper Data...</p>
-            </div>
-
-            <div id="live-matchups-section" class="hidden">
-                <h3 class="oswald text-xl uppercase tracking-wider mb-4 flex items-center">
-                    <span class="w-2 h-2 bg-red-600 rounded-full animate-ping mr-3"></span>
-                    Live Dashboard — Week <span id="current-week-num" class="ml-1">1</span>
-                </h3>
-                <div id="matchups-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-            </div>
-
-            <div id="standings-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-        </div>
-
-        <!-- Rankings Tab -->
-        <div id="rankings-view" class="hidden">
-            <div class="rankings-table-wrapper">
-                <div class="glass rounded-xl overflow-hidden premium-shadow">
-                    <table class="w-full text-left border-collapse text-sm sm:text-base">
-                        <thead>
-                            <tr class="bg-white/5 uppercase text-xs sm:text-sm tracking-widest font-bold">
-                                <th class="p-2 sm:p-4 mono">Rank</th>
-                                <th class="p-2 sm:p-4">Team</th>
-                                <th class="p-2 sm:p-4 mono">Win %</th>
-                                <th class="p-2 sm:p-4 mono">D-Score</th>
-                                <th class="p-2 sm:p-4 hidden sm:table-cell">Bonuses</th>
-                            </tr>
-                        </thead>
-                        <tbody id="rankings-body"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Records Tab -->
-        <div id="records-view" class="hidden space-y-12">
-            <section>
-                <h3 class="oswald text-3xl italic uppercase mb-6 border-l-4 border-[#D4AF37] pl-4">Hall of Fame</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="hall-of-fame-grid"></div>
-            </section>
-            <section>
-                <h3 class="oswald text-3xl italic uppercase mb-6 border-l-4 border-white/20 pl-4">Permanent Records</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="records-grid"></div>
-            </section>
-        </div>
-
-        <!-- History Tab -->
-        <div id="history-view" class="hidden">
-            <h2 class="oswald text-4xl sm:text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter mb-4">Season History</h2>
-            <p class="text-gray-500 text-sm mono uppercase tracking-widest mb-12">1st Dynasty · 2023–Present</p>
-
-            <div class="relative">
-                <div class="timeline-line hidden md:block"></div>
-                <div class="space-y-12 md:space-y-0">
-
-                    <!-- 2023 -->
-                    <div class="md:flex md:items-start md:gap-8 md:mb-16">
-                        <div class="md:w-1/2 md:text-right md:pr-12 mb-6 md:mb-0">
-                            <div class="glass rounded-xl p-6 premium-shadow">
-                                <p class="mono text-[10px] text-gray-500 uppercase tracking-widest mb-1">Season 1 · 2023</p>
-                                <h3 class="oswald text-2xl uppercase italic rank-gold mb-3">The Founding</h3>
-                                <div class="space-y-2 text-sm text-gray-400">
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Lake Champlain</strong></span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-certificate text-yellow-600 text-xs"></i><span>Gold Jacket · Dylan</span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-users text-gray-500 text-xs"></i><span>12 OG Founding Teams</span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-rocket text-blue-400 text-xs"></i><span>First season of 1st Dynasty</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="hidden md:flex items-center justify-center z-10 relative">
-                            <div class="timeline-node ring-2 ring-[#D4AF37]/30"></div>
-                        </div>
-                        <div class="md:w-1/2 md:pl-12">
-                            <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
-                                <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Notable Events</p>
-                                <p>· League founded by Commissioner</p>
-                                <p>· 12-team Top Level only</p>
-                                <p>· Snake startup draft</p>
-                                <p>· Constitution Rev 2023.1</p>
-                                <p>· "Love of the game" model</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2024 -->
-                    <div class="md:flex md:flex-row-reverse md:items-start md:gap-8 md:mb-16">
-                        <div class="md:w-1/2 md:text-left md:pl-12 mb-6 md:mb-0">
-                            <div class="glass rounded-xl p-6 premium-shadow">
-                                <p class="mono text-[10px] text-gray-500 uppercase tracking-widest mb-1">Season 2 · 2024</p>
-                                <h3 class="oswald text-2xl uppercase italic rank-gold mb-3">The Expansion</h3>
-                                <div class="space-y-2 text-sm text-gray-400">
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Driftwood Broncos</strong></span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-certificate text-yellow-600 text-xs"></i><span>Green Jacket · Shane</span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-bolt text-emerald-400 text-xs"></i><span>14-game win streak set</span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-layer-group text-blue-400 text-xs"></i><span>Mid League & Cellar added</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="hidden md:flex items-center justify-center z-10 relative">
-                            <div class="timeline-node ring-2 ring-[#D4AF37]/30"></div>
-                        </div>
-                        <div class="md:w-1/2 md:pr-12 md:text-right">
-                            <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
-                                <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Notable Events</p>
-                                <p>· Promotion/Relegation debuts</p>
-                                <p>· 3-tier structure established</p>
-                                <p>· Dynasty lead building</p>
-                                <p>· Amendment IX enacted</p>
-                                <p>· New owners join</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2025 -->
-                    <div class="md:flex md:items-start md:gap-8 md:mb-16">
-                        <div class="md:w-1/2 md:text-right md:pr-12 mb-6 md:mb-0">
-                            <div class="glass rounded-xl p-6 premium-shadow border border-[#D4AF37]/20">
-                                <p class="mono text-[10px] text-gray-500 uppercase tracking-widest mb-1">Season 3 · 2025</p>
-                                <h3 class="oswald text-2xl uppercase italic rank-gold mb-3">The Reckoning</h3>
-                                <div class="space-y-2 text-sm text-gray-400">
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500 text-xs"></i><span>Champion: <strong class="text-white">Southie TB</strong></span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-fire text-orange-500 text-xs"></i><span>234.6 all-time high</span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-star text-yellow-400 text-xs"></i><span>15-1 season record</span></div>
-                                    <div class="flex md:justify-end items-center gap-2"><i class="fa-solid fa-scroll text-gray-400 text-xs"></i><span>Amendment X enacted</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="hidden md:flex items-center justify-center z-10 relative">
-                            <div class="timeline-node ring-4 ring-[#D4AF37]/40" style="width:16px;height:16px;"></div>
-                        </div>
-                        <div class="md:w-1/2 md:pl-12">
-                            <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
-                                <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Notable Events</p>
-                                <p>· New owners join</p>
-                                <p>· Amendment X enacted</p>
-                                <p>· Season record set</p>
-                                <p>· Returning champions</p>
-                                <p>· Relegation updates</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2026 -->
-                    <div class="md:flex md:flex-row-reverse md:items-start md:gap-8">
-                        <div class="md:w-1/2 md:text-left md:pl-12 mb-6 md:mb-0">
-                            <div class="glass rounded-xl p-6 premium-shadow border border-white/5">
-                                <p class="mono text-[10px] text-gray-500 uppercase tracking-widest mb-1">Season 4 · 2026</p>
-                                <h3 class="oswald text-2xl uppercase italic text-white mb-3">The Current Season <span class="text-red-500 text-base animate-pulse">●</span></h3>
-                                <div class="space-y-2 text-sm text-gray-400">
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-crown text-[#D4AF37] text-xs"></i><span>Dynasty Leader: <strong class="rank-gold">Southie TB</strong></span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-user-plus text-blue-400 text-xs"></i><span>New owners joined</span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-scroll text-gray-400 text-xs"></i><span>Constitution Rev 2026.1</span></div>
-                                    <div class="flex items-center gap-2"><i class="fa-solid fa-question text-gray-600 text-xs"></i><span>Champion: <em>TBD</em></span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="hidden md:flex items-center justify-center z-10 relative">
-                            <div class="timeline-node border-dashed ring-2 ring-gray-700"></div>
-                        </div>
-                        <div class="md:w-1/2 md:pr-12 md:text-right">
-                            <div class="glass rounded-xl p-4 text-xs text-gray-500 mono space-y-1">
-                                <p class="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-2">Watch This Season</p>
-                                <p>· Back-to-back champion?</p>
-                                <p>· Redraft triggers active</p>
-                                <p>· New owners adjusting</p>
-                                <p>· Competitive balance</p>
-                                <p>· Dynasty fate TBD</p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Retired Teams Section -->
-            <div class="mt-20">
-                <h3 class="oswald text-3xl italic uppercase mb-2 border-l-4 border-white/20 pl-4 text-gray-500">Retired Owners</h3>
-                <p class="text-gray-600 text-xs mono uppercase tracking-widest mb-6 pl-4">Discharge records of former league members</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="glass rounded-xl p-4 border-l-4 border-green-800/50">
-                        <p class="text-[10px] mono text-green-600 uppercase tracking-widest font-bold mb-1">Honorable Discharge</p>
-                        <p class="font-bold text-white">Robert — Minnesota Gray Ducks</p>
-                        <p class="text-xs text-gray-500 mono">2024 · D-Score: 182.00</p>
-                    </div>
-                    <div class="glass rounded-xl p-4 border-l-4 border-green-800/50">
-                        <p class="text-[10px] mono text-green-600 uppercase tracking-widest font-bold mb-1">Honorable Discharge</p>
-                        <p class="font-bold text-white">Steve (Sarppen)</p>
-                        <p class="text-xs text-gray-500 mono">2023 · OG Founding Member</p>
-                    </div>
-                    <div class="glass rounded-xl p-4 border-l-4 border-red-900/50">
-                        <p class="text-[10px] mono text-red-500 uppercase tracking-widest font-bold mb-1">Other than Honorable</p>
-                        <p class="font-bold text-white">Danny — The Other Guys</p>
-                        <p class="text-xs text-gray-500 mono">2023 · OG Founding</p>
-                    </div>
-                    <div class="glass rounded-xl p-4 border-l-4 border-red-900/50">
-                        <p class="text-[10px] mono text-red-500 uppercase tracking-widest font-bold mb-1">Other than Honorable</p>
-                        <p class="font-bold text-white">LP — Peter Griffin's Revenge</p>
-                        <p class="text-xs text-gray-500 mono">2023 · OG Founding</p>
-                    </div>
-                    <div class="glass rounded-xl p-4 border-l-4 border-red-900/50">
-                        <p class="text-[10px] mono text-red-500 uppercase tracking-widest font-bold mb-1">Other than Honorable</p>
-                        <p class="font-bold text-white">Ryan (RWeir)</p>
-                        <p class="text-xs text-gray-500 mono">2023 · OG Founding</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Constitution Tab -->
-        <div id="constitution-view" class="hidden">
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-                <div>
-                    <h2 class="oswald text-4xl sm:text-5xl md:text-7xl font-extrabold uppercase italic tracking-tighter">The Constitution</h2>
-                    <p class="text-gray-500 text-sm mono uppercase tracking-widest mt-1">Revision 2026.1 · Commissioner: Dan Frank</p>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <button onclick="expandAllConstitution()" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors">Expand All</button>
-                    <button onclick="collapseAllConstitution()" class="text-xs mono uppercase tracking-widest px-3 py-2 border border-white/10 rounded hover:bg-white/5 transition-colors">Collapse</button>
-                    <input id="constitution-search" oninput="filterConstitution(this.value)" type="text" placeholder="Search…" class="text-xs mono bg-white/5 border border-white/10 rounded px-3 py-2 text-white/80 w-full sm:w-48">
-                </div>
-            </div>
-
-            <div id="constitution-articles" class="space-y-3"></div>
-        </div>
-
-    </main>
-
-    <!-- Team Detail Modal -->
-    <div id="team-modal" class="modal-overlay hidden">
-        <div class="bg-[#111] border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl premium-shadow relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors z-10">
-                <i class="fa-solid fa-xmark text-2xl"></i>
+    <!-- ─── TEAM MODAL ─────────────────────────────────────────────────── -->
+    <div id="modal" class="modal-overlay hidden">
+        <div class="panel w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors z-10 w-9 h-9 rounded-full bg-white/5 flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
             </button>
-            <div id="modal-content" class="p-8"></div>
+            <div id="modal-body" class="p-5 sm:p-8"></div>
         </div>
     </div>
 
     <script src="js/constants.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dscore.js"></script>
     <script src="js/app.js"></script>
-
-    <script>
-        // Back to Top Button functionality
-        const backToTopBtn = document.getElementById('back-to-top');
-        
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                backToTopBtn.classList.add('show');
-            } else {
-                backToTopBtn.classList.remove('show');
-            }
-        });
-
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-    </script>
 </body>
 </html>

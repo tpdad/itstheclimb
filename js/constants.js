@@ -1,107 +1,153 @@
-// ─── SLEEPER API LEAGUE CONFIGURATION ───────────────────────────────────────
-// These IDs map directly to your Sleeper league accounts
+// ═════════════════════════════════════════════════════════════════════════
+//  IT'S THE CLIMB — LEAGUE CONSTANTS
+//  Manual league data lives here. Live data comes from js/api.js.
+// ═════════════════════════════════════════════════════════════════════════
+
+// ─── SLEEPER LEAGUE CONFIGURATION ───────────────────────────────────────────
 const LEAGUE_MAP = {
-    top:    { id: '1312154762648506368', name: 'The Top Level',  subtitle: 'Green Jacket & Gold Jacket Divisions', capacity: 12, color: '#D4AF37' },
-    mid:    { id: '1312155068753006592', name: 'The Mid League', subtitle: 'Jimmy & Malcolm Divisions',            capacity: 12, color: '#C0C0C0' },
-    cellar: { id: '1312155365764263936', name: 'The Cellar',     subtitle: 'Roy McAvoy & Roy Munson Divisions',    capacity: 10, color: '#8B4513' }
+    top:    { id: '1312154762648506368', name: 'The Top Level',  subtitle: 'Green Jacket & Gold Jacket Divisions', capacity: 12, color: '#E8C547', alt: 'SUMMIT · 14,000 FT' },
+    mid:    { id: '1312155068753006592', name: 'The Mid League', subtitle: 'Jimmy & Malcolm Divisions',            capacity: 12, color: '#AEB8C4', alt: 'RIDGELINE · 8,000 FT' },
+    cellar: { id: '1312155365764263936', name: 'The Cellar',     subtitle: 'Roy McAvoy & Roy Munson Divisions',    capacity: 10, color: '#C97B4A', alt: 'BASECAMP · 2,000 FT' }
 };
+const TIER_ORDER = ['top', 'mid', 'cellar'];
+const SEASON = 2026;
+const SEASON_NUM = 4; // Season 4 of 1st Dynasty
+
+// FantasyCalc settings — league is superflex (2 QB value), 12-team, 0.5 PPR
+// (verified against Sleeper scoring_settings: rec = 0.5)
+const FC_PARAMS = { isDynasty: true, numQbs: 2, numTeams: 12, ppr: 0.5 };
 
 // ─── PERMANENT RECORDS ───────────────────────────────────────────────────────
 const DYNASTY_RECORDS = [
-    { label: 'Single Game High Score',   owner: 'Point Pleasant Mothmen',  val: '234.6' },
-    { label: 'Longest Winning Streak',   owner: 'Southie Thunder Buddies', val: '14 Games' },
-    { label: 'Single Season W/L',        owner: 'Southie Thunder Buddies', val: '15-1' },
-    { label: 'Season Long High Score',   owner: 'Southie Thunder Buddies', val: '2442.99' }
+    { label: 'Single Game High Score',   owner: 'Point Pleasant Mothmen',  val: '234.6',   icon: 'fa-fire',       color: 'text-orange-500' },
+    { label: 'Longest Winning Streak',   owner: 'Southie Thunder Buddies', val: '14 Games', icon: 'fa-bolt',       color: 'text-emerald-400' },
+    { label: 'Single Season W/L',        owner: 'Southie Thunder Buddies', val: '15-1',     icon: 'fa-star',       color: 'text-yellow-400' },
+    { label: 'Season Long High Score',   owner: 'Southie Thunder Buddies', val: '2442.99',  icon: 'fa-calculator', color: 'text-sky-400' }
 ];
 
-// ─── DYNASTY RANKINGS (Update manually each season) ───────────────────────────
-// These are maintained manually. Update the scores, breakdown, and bonuses as the dynasty progresses.
+// ─── HALL OF FAME / CHAMPIONS ────────────────────────────────────────────────
+const HALL_OF_FAME = [
+    { season: 2025, seasonNum: 3, team: 'Southie Thunder Buddies', owner: 'Dan · Massachusetts · philosopherdan', jacket: 'Green Jacket Champion' },
+    { season: 2024, seasonNum: 2, team: 'Driftwood Broncos',       owner: 'Shane · Florida · SloppyJoes',         jacket: 'Green Jacket Champion' },
+    { season: 2023, seasonNum: 1, team: 'Lake Champlain Champs',   owner: 'Dylan · Vermont · dylanjstoll',        jacket: 'Gold Jacket Champion' }
+];
+
+// ─── DYNASTY RANKINGS (manual — update each season) ──────────────────────────
 const DYNASTY_RANKS = [
-    { team: 'Southie Thunder Buddies',    owners: ['philosopherdan','daniel frank'], score: 384.00, winPct: '74%', bonus: 'Division, Total Points, Streak, Single Season W/L',
+    { team: 'Southie Thunder Buddies',    owners: ['philosopherdan','daniel frank'], ownerId: '368921092460462080', score: 384.00, winPct: '74%', bonus: 'Division, Total Points, Streak, Single Season W/L',
       entered: 2023, breakdown: { champ:1, thirdPlace:1, ptsFirst:2, playoffs:3, divWin:2, playoffWin:2, winPct:74, seasonsTop:4, permRecordBonus:10, recordBonus:100 } },
-    { team: 'Lake Champlain Champs',      owners: [],                                score: 205.75, winPct: '57%', bonus: 'Championship',
+    { team: 'Lake Champlain Champs',      owners: ['dylanjstoll'], ownerId: '310953370741407744',                                score: 205.75, winPct: '57%', bonus: 'Championship',
       entered: 2023, breakdown: { champ:1, playoffs:3, playoffWin:3, winPct:57, seasonsTop:4 } },
-    { team: 'Point Pleasant Mothmen',     owners: ['che','chemistbee'],              score: 204.00, winPct: '64%', bonus: 'High Score Holder',
+    { team: 'Point Pleasant Mothmen',     owners: ['che','chemistbee'], ownerId: '846183516587806720',              score: 204.00, winPct: '64%', bonus: 'High Score Holder',
       entered: 2025, breakdown: { ptsSecond:1, playoffs:1, lvl2Champ:1, winPct:64, seasonsTop:2, permRecordBonus:10, recordBonus:25 } },
-    { team: 'New England Blinkahs',       owners: ['tutes1173'],                     score: 197.50, winPct: '60%', bonus: 'History',
+    { team: 'New England Blinkahs',       owners: ['tutes1173'], ownerId: '399425495596290048',                     score: 197.50, winPct: '60%', bonus: 'History',
       entered: 2023, breakdown: { secondPlace:1, ptsFirst:1, playoffs:1, divWin:1, playoffWin:1, relegated:1, winPct:60, seasonsTop:4, permRecordBonus:5 } },
-    { team: 'Mar a Lago Bed Bugs',        owners: ['happpy'],                        score: 184.17, winPct: '50%', bonus: '-',
+    { team: 'Mar a Lago Bed Bugs',        owners: ['happpy'], ownerId: '996516356587753472',                        score: 184.17, winPct: '50%', bonus: '-',
       entered: 2024, breakdown: { winPct:50, seasonsTop:3 } },
-    { team: 'Bikini Bottom Angry Birds',  owners: [],                                score: 180.17, winPct: '46%', bonus: 'Division',
+    { team: 'Bikini Bottom Angry Birds',  owners: ['samjacobs10'], ownerId: '867150076190052352',                                score: 180.17, winPct: '46%', bonus: 'Division',
       entered: 2023, breakdown: { divWin:1, winPct:46, seasonsTop:3 } },
-    { team: "The Catalina Wine Mixer's",  owners: [],                                score: 179.83, winPct: '64%', bonus: '-',
+    { team: "The Catalina Wine Mixer's",  owners: ['bobloblaw40'], ownerId: '578735109004378112',                                score: 179.83, winPct: '64%', bonus: '-',
       entered: 2024, breakdown: { winPct:64, seasonsTop:3 } },
-    { team: 'Driftwood Broncos',          owners: ['sloppyjoes'],                    score: 143.17, winPct: '39%', bonus: 'Championship',
+    { team: 'Driftwood Broncos',          owners: ['sloppyjoes'], ownerId: '337735453614567424',                    score: 143.17, winPct: '39%', bonus: 'Championship',
       entered: 2024, breakdown: { champ:1, winPct:39, seasonsTop:3 } },
-    { team: 'Wukanda dolphins',           owners: ['minic'],                         score: 140.83, winPct: '50%', bonus: '-',
+    { team: 'Wukanda dolphins',           owners: ['minic'], ownerId: '996510865815953408',                         score: 140.83, winPct: '50%', bonus: '-',
       entered: 2024, breakdown: { winPct:50, seasonsTop:3 } },
-    { team: 'Mooloolaba Love Tanks',      owners: ['steaminwilliebeamens'],          score: 97.50,  winPct: '50%', bonus: '-',
+    { team: 'Mooloolaba Love Tanks',      owners: ['steaminwilliebeamens'], ownerId: '607155371257163776',          score: 97.50,  winPct: '50%', bonus: '-',
       entered: 2023, breakdown: { winPct:50, seasonsTop:2, relegated:1 } },
-    { team: 'Rhody Quahogs',              owners: ['squirtlesquad187'],              score: 81.00,  winPct: '61%', bonus: '-',
+    { team: 'Rhody Quahogs',              owners: ['squirtlesquad187'], ownerId: '818613649684946944',              score: 81.00,  winPct: '61%', bonus: '-',
       entered: 2023, breakdown: { winPct:61, seasonsTop:2, relegated:1 } },
-    { team: 'CT Cool Catz',               owners: ['plak13'],                        score: 61.50,  winPct: '54%', bonus: '-',
+    { team: 'CT Cool Catz',               owners: ['plak13'], ownerId: '547635526044360704',                        score: 61.50,  winPct: '54%', bonus: '-',
       entered: 2023, breakdown: { winPct:54, seasonsTop:2, relegated:1 } },
-    { team: 'Lone Star Legends',          owners: ['cbabybell'],                     score: 42.50,  winPct: '0%',  bonus: '-',
+    { team: 'Lone Star Legends',          owners: ['cbabybell'], ownerId: '893945727754317824',                     score: 42.50,  winPct: '0%',  bonus: '-',
       entered: 2026, breakdown: { winPct:0, seasonsTop:1 }, sloppyException: false },
-    { team: 'Manitoba MooseKnuckles',     owners: ['cellyl77'],                      score: 42.50,  winPct: '0%',  bonus: '-',
+    { team: 'Manitoba MooseKnuckles',     owners: ['cellyl77'], ownerId: '859484510746681344',                      score: 42.50,  winPct: '0%',  bonus: '-',
       entered: 2026, breakdown: { winPct:0, seasonsTop:1 } },
-    { team: 'Washington WarHawks',        owners: ['lokisam'],                       score: 38.00,  winPct: '33%', bonus: '-',
+    { team: 'Washington WarHawks',        owners: ['lokisam'], ownerId: '867232149391265792',                       score: 38.00,  winPct: '33%', bonus: '-',
       entered: 2023, breakdown: { winPct:33, seasonsTop:2, relegated:1 } },
-    { team: 'New York Red Hulks',         owners: ['dynastyghoul'],                  score: 32.50,  winPct: '0%',  bonus: '-',
+    { team: 'New York Red Hulks',         owners: ['dynastyghoul'], ownerId: '1078334787837829120',                  score: 32.50,  winPct: '0%',  bonus: '-',
       entered: 2026, breakdown: { winPct:0, seasonsTop:1 } },
-    { team: 'Puddletown Panthers',        owners: ['christiandior23'],               score: 16.00,  winPct: '0%',  bonus: '-',
+    { team: 'Puddletown Panthers',        owners: ['christiandior23'], ownerId: '721895832546390016',               score: 16.00,  winPct: '0%',  bonus: '-',
       entered: 2025, breakdown: { winPct:0, seasonsTop:1 } },
-    { team: 'London Silly Nannies',       owners: ['ryguy5188'],                     score: -22.00, winPct: '43%', bonus: '-',
+    { team: 'London Silly Nannies',       owners: ['ryguy5188'], ownerId: '815024153592745984',                     score: -22.00, winPct: '43%', bonus: '-',
       entered: 2025, breakdown: { winPct:43, seasonsTop:1, relegated:1 } },
-    { team: 'The Bog Cloggers',           owners: ['aidanwhite234'],                 score: -83.00, winPct: '7%',  bonus: '-',
+    { team: 'The Bog Cloggers',           owners: ['aidanwhite234'], ownerId: '868646780299010048',                 score: -83.00, winPct: '7%',  bonus: '-',
       entered: 2025, breakdown: { winPct:7, seasonsTop:1, relegated:1, bottom4:1 } }
 ];
 
-// ─── BADGE & ACHIEVEMENT DEFINITIONS ─────────────────────────────────────────
+// ─── DYNASTY VICTOR BANNER / REDRAFT TRIGGERS ───────────────────────────────
+const DYNASTY_STATUS = {
+    leader: 'Southie Thunder Buddies',
+    leaderScore: 384.00,
+    triggers: [
+        { label: '>½ champs (1 team, Yr4+)', progress: 1, total: 3, color: 'bg-yellow-500' },
+        { label: '6 combined champs (2 teams)', progress: 3, total: 6, color: 'bg-emerald-600' },
+        { label: 'Season 10 vote', progress: 4, total: 10, color: 'bg-slate-500' }
+    ]
+};
+
+// ─── BADGES, IMMUNITY, RELEGATION ────────────────────────────────────────────
 const CHAMPION_TEAMS = ['Southie Thunder Buddies', 'Driftwood Broncos', 'Lake Champlain Champs'];
-const RECORD_HOLDER_TEAMS = ['Point Pleasant Mothmen', 'Southie Thunder Buddies'];
 const IMMUNITY_TEAMS_DATA = [
     { team: 'Southie Thunder Buddies', owner: 'philosopherdan', expires: 2026, reason: '2025 Champion' }
 ];
-const IMMUNITY_TEAMS = IMMUNITY_TEAMS_DATA.map(i => i.team);
-
-// ─── RELEGATION RISK (teams at bottom of standings) ──────────────────────────
 const RELEGATION_RISK_COUNT = { top: 2, mid: 2, cellar: 0 };
+const PROMOTION_SPOT_COUNT = { top: 0, mid: 2, cellar: 2 };
 
-// ─── BADGE ICONS & STYLING ──────────────────────────────────────────────────
 const RECORD_BADGES = {
-    'Championship':          { icon: 'fa-trophy',              color: 'text-yellow-500',  bg: 'bg-yellow-500/20' },
-    'High Score Holder':     { icon: 'fa-fire',                color: 'text-orange-500',  bg: 'bg-orange-500/20' },
-    'Total Points':          { icon: 'fa-calculator',          color: 'text-blue-500',    bg: 'bg-blue-500/20'   },
-    'Streak':                { icon: 'fa-bolt',                color: 'text-emerald-500', bg: 'bg-emerald-500/20'},
-    'Single Season W/L':     { icon: 'fa-star',                color: 'text-yellow-400',  bg: 'bg-yellow-400/20' },
-    'Division':              { icon: 'fa-crown',               color: 'text-purple-500',  bg: 'bg-purple-500/20' },
-    'History':               { icon: 'fa-book',                color: 'text-white',       bg: 'bg-white/20'      },
-    'Relegation Risk':       { icon: 'fa-triangle-exclamation',color: 'text-red-500',     bg: 'bg-red-500/20'    }
+    'Championship':       { icon: 'fa-trophy',               color: 'text-yellow-400',  bg: 'bg-yellow-400/10' },
+    'High Score Holder':  { icon: 'fa-fire',                 color: 'text-orange-400',  bg: 'bg-orange-400/10' },
+    'Total Points':       { icon: 'fa-calculator',           color: 'text-sky-400',     bg: 'bg-sky-400/10'    },
+    'Streak':             { icon: 'fa-bolt',                 color: 'text-emerald-400', bg: 'bg-emerald-400/10'},
+    'Single Season W/L':  { icon: 'fa-star',                 color: 'text-yellow-300',  bg: 'bg-yellow-300/10' },
+    'Division':           { icon: 'fa-crown',                color: 'text-purple-400',  bg: 'bg-purple-400/10' },
+    'History':            { icon: 'fa-book',                 color: 'text-white',       bg: 'bg-white/10'      },
+    'Relegation Risk':    { icon: 'fa-triangle-exclamation', color: 'text-red-400',     bg: 'bg-red-400/10'    }
 };
 
-// ─── D-SCORE CALCULATION COMPONENTS ──────────────────────────────────────────
-// These define how dynasty points are calculated from season performance
 const DSCORE_LINE_ITEMS = [
-    { key: 'champ',           label: 'Championship',         pts: '+100/ea' },
-    { key: 'secondPlace',     label: '2nd Place',            pts: '+50/ea'  },
-    { key: 'thirdPlace',      label: '3rd Place',            pts: '+25/ea'  },
-    { key: 'playoffs',        label: 'Playoff Appearances',  pts: '+25/ea'  },
-    { key: 'playoffWin',      label: 'Playoff Wins',         pts: '+20/ea'  },
-    { key: 'divWin',          label: 'Division Wins',        pts: '+50/ea'  },
-    { key: 'ptsFirst',        label: 'Points Leader (Ssn)',  pts: '+50/ea'  },
-    { key: 'ptsSecond',       label: '2nd in Points (Ssn)',  pts: '+25/ea'  },
-    { key: 'winPct',          label: 'Win % (avg × 1)',      pts: 'avg'     },
-    { key: 'seasonsTop',      label: 'Seasons in Top Lvl',   pts: '+10/ea'  },
-    { key: 'relegated',       label: 'Relegation',           pts: '-25/ea'  },
-    { key: 'bottom4',         label: 'Bottom 4 Finish',      pts: '-50/ea'  },
-    { key: 'permRecordBonus', label: 'Perm. Record Bonus',   pts: 'static'  },
-    { key: 'recordBonus',     label: 'Record Holder Bonus',  pts: 'static'  },
-    { key: 'lvl2Champ',       label: 'Level 2 Champion',     pts: '+20/ea'  }
+    { key: 'champ',           label: 'Championship',        pts: '+100/ea' },
+    { key: 'secondPlace',     label: '2nd Place',           pts: '+50/ea'  },
+    { key: 'thirdPlace',      label: '3rd Place',           pts: '+25/ea'  },
+    { key: 'playoffs',        label: 'Playoff Appearances', pts: '+25/ea'  },
+    { key: 'playoffWin',      label: 'Playoff Wins',        pts: '+20/ea'  },
+    { key: 'divWin',          label: 'Division Wins',       pts: '+50/ea'  },
+    { key: 'ptsFirst',        label: 'Points Leader (Ssn)', pts: '+50/ea'  },
+    { key: 'ptsSecond',       label: '2nd in Points (Ssn)', pts: '+25/ea'  },
+    { key: 'winPct',          label: 'Win % (avg × 1)',     pts: 'avg'     },
+    { key: 'seasonsTop',      label: 'Seasons in Top Lvl',  pts: '+10/ea'  },
+    { key: 'relegated',       label: 'Relegation',          pts: '-25/ea'  },
+    { key: 'bottom4',         label: 'Bottom 4 Finish',     pts: '-50/ea'  },
+    { key: 'permRecordBonus', label: 'Perm. Record Bonus',  pts: 'static'  },
+    { key: 'recordBonus',     label: 'Record Holder Bonus', pts: 'static'  },
+    { key: 'lvl2Champ',       label: 'Level 2 Champion',    pts: '+20/ea'  }
+];
+
+// ─── SEASON HISTORY TIMELINE ─────────────────────────────────────────────────
+const SEASON_HISTORY = [
+    { season: 2023, num: 1, title: 'The Founding', champ: 'Lake Champlain Champs', jacket: 'Gold Jacket · Dylan',
+      facts: ['12 OG Founding Teams', 'First season of 1st Dynasty'],
+      events: ['League founded by Commissioner', '12-team Top Level only', 'Snake startup draft', 'Constitution Rev 2023.1', '"Love of the game" model'] },
+    { season: 2024, num: 2, title: 'The Expansion', champ: 'Driftwood Broncos', jacket: 'Green Jacket · Shane',
+      facts: ['14-game win streak set', 'Mid League & Cellar added'],
+      events: ['Promotion/Relegation debuts', '3-tier structure established', 'Dynasty lead building', 'Amendment IX enacted', 'New owners join'] },
+    { season: 2025, num: 3, title: 'The Reckoning', champ: 'Southie Thunder Buddies', jacket: 'Green Jacket · Dan',
+      facts: ['234.6 all-time high', '15-1 season record', 'Amendment X enacted'],
+      events: ['New owners join', 'Amendment X enacted', 'Season record set', 'Returning champions', 'Relegation updates'] },
+    { season: 2026, num: 4, title: 'The Current Season', champ: null, jacket: null, live: true,
+      facts: ['Dynasty Leader: Southie TB', 'New owners joined', 'Constitution Rev 2026.1'],
+      events: ['Back-to-back champion?', 'Redraft triggers active', 'New owners adjusting', 'Competitive balance', 'Dynasty fate TBD'] }
+];
+
+const RETIRED_OWNERS = [
+    { name: 'Robert — Minnesota Gray Ducks', detail: '2024 · D-Score: 182.00', honorable: true },
+    { name: 'Steve (Sarppen)',               detail: '2023 · OG Founding Member', honorable: true },
+    { name: 'Danny — The Other Guys',        detail: '2023 · OG Founding', honorable: false },
+    { name: "LP — Peter Griffin's Revenge",  detail: '2023 · OG Founding', honorable: false },
+    { name: 'Ryan (RWeir)',                  detail: '2023 · OG Founding', honorable: false }
 ];
 
 // ─── LEAGUE CONSTITUTION & AMENDMENTS ────────────────────────────────────────
-// Update this when you make changes to the constitution
+const CONSTITUTION_META = { revision: '2026.1', commissioner: 'Dan Frank' };
 const CONSTITUTION = [
     { id: 'art1', type: 'article', title: 'Article I: Governing Body', content: `The league commissioner is Daniel Frank. Commissioner has autonomous rule and final say on all league matters. No decision can be overruled by democratic vote. Appeals are heard by the office of the commissioner — there is no appeal of the appeal. The commissioner serves until bribed sufficiently or resigned voluntarily (triggering a democratic election).` },
     { id: 'art2', type: 'article', title: 'Article II: League Setup', content: `It's the Climb is a blend of dynasty, keeper, and relegation league. Three tiers: Top, Mid, and Cellar. Each league has two divisions. Teams play divisional opponents twice and non-divisional opponents once. No fees currently — "love of the game" model. Potential for more levels in future years.` },
@@ -127,3 +173,5 @@ const CONSTITUTION = [
     { id: 'amend9', type: 'amendment', title: 'Amendment IX: A Team Has No Name', content: `Team names must include a location + mascot/nickname (real or fictional). Names are meant to be permanent for branding and historical identity. Commissioner has final authority on compliance. Goal: build a league with enough lore that teams have legends. No overly vulgar names (workplace-visible standard applies).` },
     { id: 'amend10', type: 'amendment', title: 'Amendment X: The Sloppy Exception', content: `Commissioner may promote a non-performing team based on participation level and likability to fill vacancies not created by normal circumstances. Usable once per dynasty per owner. Owner must be in good standing. Lower-level commissioner is consulted. This is the exception, not the norm.` }
 ];
+
+const GOOGLE_DOC_URL = 'https://docs.google.com/document/d/1JASaVRgcu9-bmoVFDSwpHdhnjpSfgMyd99RjWIJc1OY/edit?tab=t.0';
