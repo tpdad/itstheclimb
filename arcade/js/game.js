@@ -985,7 +985,7 @@ const ARCADE = (() => {
 
     // ── ui ──────────────────────────────────────────────────────────────────
     const $g = id => root ? root.querySelector('#' + id) : null;
-    function setMsg(m) { const el = $g('ag-msg'); if (el) el.textContent = m; }
+    function setMsg() {} // white ticker removed — flavor lives in the on-field pop text
     function updateHUD() {
         if (level == null || !root || !st) return;
         $g('ag-vs').textContent = 'YOU vs ' + TEAMS[level].team.toUpperCase();
@@ -1185,7 +1185,6 @@ const ARCADE = (() => {
                 .ag-hud { padding:8px !important; }
                 .ag-hud .pill, .ag-ballbar .pill { font-size:8px; padding:4px 8px; letter-spacing:0.05em; }
                 .ag-ballbar { bottom:16px !important; left:8px !important; gap:4px; }
-                .ag-msg { font-size:8px; max-width:34%; bottom:16px !important; right:8px !important; padding:3px 7px; }
             }
             .ag-hud { position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between;
                       padding:safe area inset top 16px; padding:calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 16px) 16px calc(env(safe-area-inset-left) + 16px); pointer-events:none; z-index:2; }
@@ -1194,9 +1193,6 @@ const ARCADE = (() => {
                        border:1px solid rgba(255,255,255,0.15); border-radius:12px;
                        padding:6px 12px; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
             .ag-ballbar { position:absolute; bottom:calc(env(safe-area-inset-bottom) + 26px); left:calc(env(safe-area-inset-left) + 16px); display:flex; gap:8px; flex-wrap:wrap; z-index:2; }
-            .ag-msg { position:absolute; bottom:calc(env(safe-area-inset-bottom) + 26px); right:calc(env(safe-area-inset-right) + 16px); font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
-                      color:#111; background:rgba(255,255,255,0.9); backdrop-filter:blur(8px); padding:6px 12px; border-radius:8px;
-                      text-transform:uppercase; letter-spacing:0.1em; text-align:right; max-width:44%; box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:2; }
             .ag-overlay { position:absolute; inset:0; background:rgba(4,6,10,0.5); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
                           display:flex; align-items:center; justify-content:center; overflow-y:auto; z-index:10; }
             .ag-overlay.hidden { display:none; }
@@ -1228,7 +1224,6 @@ const ARCADE = (() => {
                     </div>
                 </div>
                 <div class="ag-ballbar" id="ag-ballbar"></div>
-                <div class="ag-msg" id="ag-msg"></div>
                 <div class="ag-overlay" id="ag-overlay"><div class="ag-panel" id="ag-obody"></div></div>
             </div>`;
         cv = $g('ag-canvas');
