@@ -37,6 +37,21 @@ header p { font-size:9px; text-transform:uppercase; letter-spacing:0.25em; color
 #ios-hint { display:none; width:100%; max-width:1024px; margin-top:8px; font-size:10px; color:#8B94A3;
             background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:9px 12px; }
 footer { margin-top:10px; font-size:9px; text-transform:uppercase; letter-spacing:0.25em; color:#3c434e; text-align:center; }
+
+#rotate-overlay { display:none; }
+@media (orientation: portrait) and (pointer: coarse) {
+    #rotate-overlay { display:flex; position:fixed; inset:0; z-index:999; background:#0B0E14;
+        flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; padding:30px; }
+    #rotate-overlay .phone { width:46px; height:82px; border:4px solid #E8C547; border-radius:10px;
+        position:relative; animation:rot 1.6s ease-in-out infinite; }
+    #rotate-overlay .phone::after { content:''; position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+        width:14px; height:3px; border-radius:2px; background:#E8C547; }
+    @keyframes rot { 0%, 25% { transform:rotate(0deg); } 60%, 100% { transform:rotate(90deg); } }
+    #rotate-overlay h2 { font-family:'Archivo',sans-serif; font-weight:900; font-style:italic;
+        text-transform:uppercase; color:#fff; font-size:22px; }
+    #rotate-overlay p { font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase;
+        letter-spacing:0.2em; color:#8B94A3; max-width:260px; }
+}
 </style>
 </head>
 <body>
@@ -47,6 +62,11 @@ footer { margin-top:10px; font-size:9px; text-transform:uppercase; letter-spacin
     </div>
     <button id="install-btn" class="pill">&#128241; Add to home screen</button>
 </header>
+<div id="rotate-overlay">
+    <div class="phone"></div>
+    <h2>Rotate your phone</h2>
+    <p>Endzone Run is landscape only — turn it sideways to take the field</p>
+</div>
 <div id="game-root"></div>
 <div id="ios-hint">&#128241; <b>Play it like an app:</b> tap the Share button, then "Add to Home Screen" — the game installs by itself, fullscreen, no browser bars.</div>
 <footer>4 downs to paydirt &middot; best fullscreen on a landscape phone</footer>
@@ -87,6 +107,16 @@ window.addEventListener('appinstalled', () => { installBtn.style.display = 'none
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 if (isIOS && !standalone) document.getElementById('ios-hint').style.display = 'block';
+
+// landscape-only on phones: first tap goes fullscreen + locks orientation (Android; iOS uses the rotate overlay)
+let fsTried = false;
+document.addEventListener('touchend', () => {
+    if (fsTried || window.matchMedia('(pointer: fine)').matches) return;
+    fsTried = true;
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+    try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch (e) {}
+}, { passive: true });
 // offline support
 if ('serviceWorker' in navigator && location.protocol !== 'file:')
     navigator.serviceWorker.register('sw.js').catch(() => {});
