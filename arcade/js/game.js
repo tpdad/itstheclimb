@@ -1173,8 +1173,20 @@ const ARCADE = (() => {
         root = container;
         root.innerHTML = `
             <style>
-            .ag-wrap { position:relative; width:100vw; height:100vh; max-width:none; overflow:hidden; margin:0; }
-            .ag-wrap canvas { display:block; width:100%; height:100%; object-fit:contain; touch-action:none; }
+            .ag-wrap { position:relative; aspect-ratio:1024/576; overflow:hidden; margin:0 auto; border-radius:12px;
+                        width:min(1024px, 100%, calc((100dvh - 120px) * 1.7778)); }
+            .ag-wrap canvas { display:block; width:100%; height:100%; touch-action:none; }
+            @media (orientation: landscape) and (max-height: 560px) {
+                .ag-wrap { width:min(calc(100vw - 8px), calc((100dvh - 8px) * 1.7778)); border-radius:0; }
+            }
+            @media (max-width: 760px) {
+                .ag-chip { font-size:9px; padding:4px 8px; border-radius:8px; }
+                .ag-chip .display { font-size:11px !important; }
+                .ag-hud { padding:8px !important; }
+                .ag-hud .pill, .ag-ballbar .pill { font-size:8px; padding:4px 8px; letter-spacing:0.05em; }
+                .ag-ballbar { bottom:16px !important; left:8px !important; gap:4px; }
+                .ag-msg { font-size:8px; max-width:34%; bottom:16px !important; right:8px !important; padding:3px 7px; }
+            }
             .ag-hud { position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between;
                       padding:safe area inset top 16px; padding:calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 16px) 16px calc(env(safe-area-inset-left) + 16px); pointer-events:none; z-index:2; }
             .ag-hud > div { pointer-events:auto; display:flex; flex-direction:column; gap:6px; }

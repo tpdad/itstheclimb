@@ -1,4 +1,4 @@
-const CACHE = 'endzone-run-v2';
+const CACHE = 'endzone-run-v3';
 const CORE = ['./', './index.html', './js/game.js', './manifest.webmanifest'];
 self.addEventListener('install', e => {
     e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)));

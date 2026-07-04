@@ -38,6 +38,12 @@ header p { font-size:9px; text-transform:uppercase; letter-spacing:0.25em; color
             background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:9px 12px; }
 footer { margin-top:10px; font-size:9px; text-transform:uppercase; letter-spacing:0.25em; color:#3c434e; text-align:center; }
 
+
+@media (orientation: landscape) and (max-height: 560px) {
+    body { padding: 4px; justify-content: center; }
+    header, footer, #ios-hint { display: none !important; }
+    #game-root { max-width: none; }
+}
 #rotate-overlay { display:none; }
 @media (orientation: portrait) and (pointer: coarse) {
     #rotate-overlay { display:flex; position:fixed; inset:0; z-index:999; background:#0B0E14;
