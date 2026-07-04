@@ -25,7 +25,16 @@ function spinner(msg) {
 }
 function errBox(msg) {
     return `<div class="panel rounded-xl p-6 text-center text-sm text-slate-400">
-        <i class="fa-solid fa-cloud-bolt text-red-400 mr-2"></i>${esc(msg)}</div>`;
+        <i class="fa-solid fa-cloud-bolt text-red-400 mr-2"></i>${esc(msg)}
+        <button onclick="render()" class="pill ml-3"><i class="fa-solid fa-rotate-right mr-1"></i>Retry</button></div>`;
+}
+
+function toast(msg) {
+    let t = document.getElementById('toast');
+    if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:200;background:#12161F;border:1px solid rgba(232,197,71,0.4);color:#E8C547;padding:10px 18px;border-radius:999px;font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.08em;box-shadow:0 8px 24px rgba(0,0,0,0.5);opacity:1;transition:opacity .4s';
+    clearTimeout(t._h); t._h = setTimeout(() => t.style.opacity = '0', 2600);
 }
 
 function sectionHead(kicker, title, sub) {
@@ -107,18 +116,26 @@ function avgRosterAge(valued) {
 }
 
 // ─── NAVIGATION ─────────────────────────────────────────────────────────────
-const SECTIONS = ['hq', 'leagues', 'recap', 'dynasty', 'wire', 'analytics', 'lab', 'legacy'];
-const VALID_OPTS = { leagues: TIER_ORDER, wire: ['activity', 'trending'],
+const SECTIONS = ['hq', 'leagues', 'recap', 'dynasty', 'wire', 'analytics', 'lab', 'arcade', 'legacy'];
+const VALID_OPTS = { leagues: TIER_ORDER, analytics: TIER_ORDER, lab: TIER_ORDER,
+                     dynasty: ['official', 'audit'], wire: ['activity', 'trending'],
                      legacy: ['records', 'history', 'owners', 'constitution'],
                      recap: ['preview', 'weekly', 'season'] };
-const currentOpt = sec => sec === 'leagues' ? APP.tier : sec === 'wire' ? APP.wireTab
+const currentOpt = sec => (sec === 'leagues' || sec === 'analytics') ? APP.tier
+                        : sec === 'lab' ? APP.labTier
+                        : sec === 'dynasty' ? (APP.dynastyTab || 'official')
+                        : sec === 'wire' ? APP.wireTab
                         : sec === 'legacy' ? APP.legacyTab
                         : sec === 'recap' ? (APP.recapTab || 'preview') : '';
 
 function go(section, opt, fromHash) {
     if (opt && VALID_OPTS[section] && !VALID_OPTS[section].includes(opt)) opt = null;
     APP.section = section;
-    if (section === 'leagues' && opt) APP.tier = opt;
+    if ((section === 'leagues' || section === 'analytics') && opt) APP.tier = opt;
+    if (section === 'lab' && opt && opt !== APP.labTier) {
+        APP.labTier = opt; APP.labA = null; APP.labB = null; APP.labSelA.clear(); APP.labSelB.clear();
+    }
+    if (section === 'dynasty' && opt) APP.dynastyTab = opt;
     if (section === 'wire' && opt) APP.wireTab = opt;
     if (section === 'legacy' && opt) APP.legacyTab = opt;
     if (section === 'recap' && opt) APP.recapTab = opt;
@@ -143,6 +160,7 @@ window.addEventListener('hashchange', () => applyHash(false));
 
 async function render() {
     const v = $view();
+    if (window.ARCADE && ARCADE.active && APP.section !== 'arcade') ARCADE.unmount();
     try {
         switch (APP.section) {
             case 'hq':        return await renderHQ(v);
@@ -152,6 +170,7 @@ async function render() {
             case 'wire':      return await renderWire(v);
             case 'analytics': return await renderAnalytics(v);
             case 'lab':       return await renderLab(v);
+            case 'arcade':    return await renderArcade(v);
             case 'legacy':    return renderLegacy(v);
         }
     } catch (e) {
@@ -173,7 +192,7 @@ async function renderHQ(v) {
     try {
         const txs = await Promise.all(TIER_ORDER.map(async t => {
             const ctx = ctxs[t];
-            const list = await API.allTransactions(ctx.id, Math.min(ctx.currentWeek, 3));
+            const list = await API.allTransactions(ctx.id, ctx.inSeason ? ctx.currentWeek : 1);
             return list.map(x => ({ ...x, tier: t, ctx }));
         }));
         recent = txs.flat().sort((a, b) => b.created - a.created).slice(0, 8);
@@ -258,9 +277,13 @@ async function renderHQ(v) {
         </div>`;
     }
 
-    const seasonLabel = ctxs.top.inSeason
-        ? `Week ${ctxs.top.currentWeek} · Live`
-        : `${SEASON} Offseason · Season ${SEASON_NUM} ahead`;
+    let seasonLabel;
+    if (ctxs.top.inSeason) seasonLabel = `Week ${ctxs.top.currentWeek} · Live`;
+    else {
+        const start = ctxs.top.state?.season_start_date ? new Date(ctxs.top.state.season_start_date + 'T13:00:00') : null;
+        const days = start ? Math.ceil((start - Date.now()) / 864e5) : null;
+        seasonLabel = `${SEASON} Offseason · Season ${SEASON_NUM} ahead` + (days > 0 ? ` · ⛺ kickoff in ${days} day${days === 1 ? '' : 's'}` : '');
+    }
 
     v.innerHTML = `
         ${sectionHead('Expedition HQ', `THE&nbsp;CLIMB <span class="text-slate-600">/</span> <span class="grad-gold">SEASON ${SEASON_NUM}</span>`, seasonLabel)}
@@ -383,9 +406,10 @@ async function renderLeague(v) {
                 </div>
             </div>
             ${badgesHTML(dyn, isChamp, isReleg)}
-            <div class="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-white/5">
+            <div class="grid grid-cols-5 gap-2 mt-4 pt-3 border-t border-white/5">
                 <div><span class="stat-label">W-L</span><span class="stat-num">${team.wins}-${team.losses}</span></div>
                 <div><span class="stat-label">PF</span><span class="stat-num">${Math.round(team.fpts)}</span></div>
+                <div><span class="stat-label">PA</span><span class="stat-num text-slate-400">${Math.round(team.fptsAgainst)}</span></div>
                 <div><span class="stat-label">D-Score</span><span class="stat-num ${dyn ? (dyn.score < 0 ? 'text-red-400' : 'text-[#E8C547]') : 'text-slate-500'}">${dyn ? dyn.score.toFixed(0) : '—'}</span></div>
                 <div><span class="stat-label">Mkt Val</span><span class="stat-num text-sky-300">${mv !== undefined ? fmtVal(mv) : '—'}${mvRank ? `<i class="text-[8px] text-slate-500 not-italic"> #${mvRank}</i>` : ''}</span></div>
             </div>
@@ -529,8 +553,8 @@ function closeModal() {
 async function renderDynasty(v) {
     const sub = APP.dynastyTab || 'official';
     const subTabs = `<div class="flex gap-2 mb-8">
-        <button onclick="APP.dynastyTab='official';render()" class="pill ${sub === 'official' ? 'pill-active' : ''}">Official Rankings</button>
-        <button onclick="APP.dynastyTab='audit';render()" class="pill ${sub === 'audit' ? 'pill-active' : ''}"><i class="fa-solid fa-calculator mr-1"></i>Auto-Audit</button>
+        <button onclick="go('dynasty','official')" class="pill ${sub === 'official' ? 'pill-active' : ''}">Official Rankings</button>
+        <button onclick="go('dynasty','audit')" class="pill ${sub === 'audit' ? 'pill-active' : ''}"><i class="fa-solid fa-calculator mr-1"></i>Auto-Audit</button>
     </div>`;
     if (sub === 'audit') return renderDScoreAudit(v, subTabs);
 
@@ -566,6 +590,9 @@ async function renderDynasty(v) {
         ${sectionHead('The Standings of History', 'DYNASTY <span class="grad-gold">RANKINGS</span>',
             'D-Score is the league\u2019s own scoring of dynasty achievement (Amendment I). Market value is each roster\u2019s live FantasyCalc dynasty valuation — past glory vs. present arsenal.')}
         ${subTabs}
+        ${APP.sheetLive
+            ? '<p class="mono text-[9px] uppercase tracking-widest text-emerald-500/80 mb-4 -mt-4"><i class="fa-solid fa-table mr-1.5"></i>Live from the commissioner\u2019s Google Sheet · syncs every 30 min</p>'
+            : '<p class="mono text-[9px] uppercase tracking-widest text-slate-600 mb-4 -mt-4"><i class="fa-solid fa-database mr-1.5"></i>Baked-in snapshot · commissioner\u2019s sheet unreachable</p>'}
         <div class="panel rounded-2xl overflow-hidden">
             <div class="overflow-x-auto">
             <table class="w-full text-left">
@@ -761,7 +788,7 @@ async function renderAnalytics(v) {
     const cfg = LEAGUE_MAP[tier];
 
     const tierTabs = `<div class="flex gap-2 mb-8">${TIER_ORDER.map(t => `
-        <button onclick="APP.tier='${t}';render()" class="pill ${t === tier ? 'pill-active' : ''}">${esc(LEAGUE_MAP[t].name)}</button>`).join('')}</div>`;
+        <button onclick="go('analytics','${t}')" class="pill ${t === tier ? 'pill-active' : ''}">${esc(LEAGUE_MAP[t].name)}</button>`).join('')}</div>`;
 
     let content = '';
     if (ctx.inSeason && ctx.completedWeeks >= 2) {
@@ -965,7 +992,7 @@ async function renderLab(v) {
         ${sectionHead('The Laboratory', 'TRADE <span class="grad-gold">LAB</span>',
             'Weigh any deal with live FantasyCalc dynasty values (superflex). Draft picks priced at league-wide market rates. Values are a guide — lopsided trades remain legal and shameable.')}
         <div class="flex gap-2 mb-6">${TIER_ORDER.map(t => `
-            <button onclick="APP.labTier='${t}';APP.labA=null;APP.labB=null;APP.labSelA.clear();APP.labSelB.clear();render()"
+            <button onclick="go('lab','${t}')"
                 class="pill ${t === tier ? 'pill-active' : ''}">${esc(LEAGUE_MAP[t].name)}</button>`).join('')}</div>
 
         <div class="panel-gold rounded-2xl p-5 mb-6">
@@ -994,6 +1021,24 @@ window.labSetTeam = (side, rid) => {
 };
 
 // ═════════════════════════════════════════════════════════════════════════
+//  ARCADE — coming soon (Endzone Run is in development as a standalone build)
+// ═════════════════════════════════════════════════════════════════════════
+async function renderArcade(v) {
+    v.innerHTML = `
+        ${sectionHead('The Mountain Gauntlet', 'ENDZONE <span class="grad-gold">RUN</span>',
+            'Flick your runner through 19 mascot defenses \u2014 four downs to beat every team on the dynasty ladder. Someone at the top remains\u2026 problematic.')}
+        <div class="panel-gold rounded-2xl p-10 sm:p-14 text-center">
+            <i class="fa-solid fa-gamepad text-5xl text-[#E8C547]/70 mb-5"></i>
+            <p class="display text-3xl sm:text-4xl uppercase mb-3">Endzone <span class="grad-gold">Run</span></p>
+            <p class="text-sm text-slate-400 max-w-md mx-auto leading-relaxed mb-6">Madden-style kick meter. Real league mascots on defense.
+            Tackle-break upgrades, wrecking crews, and a fresh set of downs if you can move the chains.
+            Best on desktop or a landscape phone \u2014 and on your phone you can install it straight to your home screen like an app.</p>
+            <a href="arcade/index.html" class="pill pill-active !text-sm !px-8 !py-3"><i class="fa-solid fa-play mr-2"></i>Play Endzone Run</a>
+            <p class="mono text-[9px] uppercase tracking-[0.3em] text-slate-600 mt-6">RB \u00b7 TE \u00b7 WR \u00b7 pick your weapon \u00b7 works offline once installed</p>
+        </div>`;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
 //  LEGACY — RECORDS · HISTORY · CONSTITUTION
 // ═════════════════════════════════════════════════════════════════════════
 // ── owner career aggregation (slot-proof: per-season owner_id attribution) ──
@@ -1010,10 +1055,12 @@ async function buildOwnerCareers() {
         if (!t.ownerId) return;
         const key = canonicalOwnerId(t.ownerId);
         const o = owners[key] ||= { id: key, displays: new Set(), avatar: null, w: 0, l: 0, t: 0, pf: 0,
+                                    tw: 0, tl: 0, tt: 0, tpf: 0,
                                     seasons: [], tiers: { top: 0, mid: 0, cellar: 0 } };
         o.displays.add(t.display);
         if (!o.avatar && t.avatar) o.avatar = t.avatar;
         o.w += t.wins; o.l += t.losses; o.t += t.ties; o.pf += t.fpts;
+        if (tier === 'top') { o.tw += t.wins; o.tl += t.losses; o.tt += t.ties; o.tpf += t.fpts; }
         if (s.complete) o.tiers[tier]++;
         o.seasons.push({ season: s.season, tier, teamName: t.teamName, wins: t.wins, losses: t.losses,
                          fpts: t.fpts, standing: t.standing, of: s.teams.length, live: !s.complete });
@@ -1022,11 +1069,13 @@ async function buildOwnerCareers() {
         o.seasons.sort((a, b) => b.season - a.season || TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier));
         const g = o.w + o.l + o.t;
         o.winPct = g ? o.w / g : 0;
+        o.topGames = o.tw + o.tl + o.tt;
+        o.topPct = o.topGames ? o.tw / o.topGames : 0;
         const dyn = DYNASTY_RANKS.find(d => d.ownerId === o.id);
         o.dyn = dyn || null;
         o.titles = dyn ? HALL_OF_FAME.filter(h => h.team === dyn.team).length : 0;
     });
-    return Object.values(owners).sort((a, b) => b.winPct - a.winPct || b.w - a.w);
+    return Object.values(owners).sort((a, b) => (b.topGames ? 1 : 0) - (a.topGames ? 1 : 0) || b.topPct - a.topPct || b.tw - a.tw || b.winPct - a.winPct);
 }
 
 let _careers = null;
@@ -1043,9 +1092,10 @@ async function renderOwnersTab(v, tabs) {
                     <p class="text-sm font-bold truncate">@${esc([...o.displays][0])}</p>
                     <p class="mono text-[9px] text-slate-600 truncate">${o.dyn ? esc(o.dyn.team) : esc(o.seasons[0]?.teamName || '')}</p>
                 </div></div></td>
-            <td class="p-3 mono text-sm">${o.w}-${o.l}${o.t ? '-' + o.t : ''}</td>
-            <td class="p-3 mono text-xs ${o.winPct >= 0.55 ? 'text-emerald-400' : o.winPct < 0.45 ? 'text-red-400' : 'text-slate-300'}">${(o.winPct * 100).toFixed(0)}%</td>
-            <td class="p-3 mono text-xs text-slate-400 hidden sm:table-cell">${fmtVal(Math.round(o.pf))}</td>
+            <td class="p-3"><span class="mono text-sm">${o.topGames ? `${o.tw}-${o.tl}${o.tt ? '-' + o.tt : ''}` : '—'}</span>
+                ${(o.w !== o.tw || o.l !== o.tl) ? `<span class="block mono text-[8px] text-slate-600">all lvls ${o.w}-${o.l}</span>` : ''}</td>
+            <td class="p-3 mono text-xs ${!o.topGames ? 'text-slate-600' : o.topPct >= 0.55 ? 'text-emerald-400' : o.topPct < 0.45 ? 'text-red-400' : 'text-slate-300'}">${o.topGames ? (o.topPct * 100).toFixed(0) + '%' : '—'}</td>
+            <td class="p-3 mono text-xs text-slate-400 hidden sm:table-cell">${o.topGames ? fmtVal(Math.round(o.tpf)) : '—'}</td>
             <td class="p-3 hidden md:table-cell"><div class="flex gap-1 flex-wrap">
                 ${tierChip(o.tiers.top, '#E8C547', 'The Top Level')}${tierChip(o.tiers.mid, '#AEB8C4', 'The Mid League')}${tierChip(o.tiers.cellar, '#C97B4A', 'The Cellar')}
             </div></td>
@@ -1053,15 +1103,15 @@ async function renderOwnersTab(v, tabs) {
                 ${o.dyn ? `<span class="mono text-[9px] ${o.dyn.score < 0 ? 'text-red-400' : 'text-[#E8C547]'} ml-1">${o.dyn.score.toFixed(0)}</span>` : ''}</td>
         </tr>`).join('');
     v.innerHTML = `${sectionHead('Every Climber, Every Season', 'OWNER <span class="grad-gold">CAREERS</span>',
-        'True career records rebuilt season-by-season from Sleeper history and credited to the human, not the roster slot — promotion and relegation can no longer scramble the books. Click an owner for their full expedition log.')}${tabs}
+        'The Top Level is the league of record (Art. IX): headline careers count Top Level games only, credited to the human, not the roster slot — promotion and relegation can no longer scramble the books. Lower-level seasons stay in each expedition log. Click an owner for theirs.')}${tabs}
         <div class="panel rounded-2xl overflow-hidden"><div class="overflow-x-auto">
         <table class="w-full text-left">
             <thead><tr class="bg-white/5 mono text-[9px] uppercase tracking-[0.2em] text-slate-400">
-                <th class="p-3">#</th><th class="p-3">Owner</th><th class="p-3">Career W-L</th><th class="p-3">Win%</th>
-                <th class="p-3 hidden sm:table-cell">Career PF</th><th class="p-3 hidden md:table-cell">Seasons</th><th class="p-3">Honors · D-Score</th>
+                <th class="p-3">#</th><th class="p-3">Owner</th><th class="p-3">Top Level W-L</th><th class="p-3">Win%</th>
+                <th class="p-3 hidden sm:table-cell">Top Lvl PF</th><th class="p-3 hidden md:table-cell">Seasons</th><th class="p-3">Honors · D-Score</th>
             </tr></thead><tbody>${rows}</tbody>
         </table></div></div>
-        <p class="mono text-[9px] text-slate-600 uppercase tracking-widest mt-3">Regular-season records from each season's own league data · current season included live · multi-account owners mergeable via aliasIds in constants.js</p>`;
+        <p class="mono text-[9px] text-slate-600 uppercase tracking-widest mt-3">Top Level = league of record · regular-season records from each season's own league data · current season included live · lower levels shown but off-record</p>`;
 }
 
 window.openOwner = id => {
@@ -1083,7 +1133,7 @@ window.openOwner = id => {
             ${avatarImg(o.avatar, 'w-16 h-16 rounded-xl')}
             <div>
                 <h2 class="display text-2xl uppercase">@${esc([...o.displays][0])}</h2>
-                <p class="mono text-[10px] text-slate-500">${o.dyn ? esc(o.dyn.team) + ' · ' : ''}career ${o.w}-${o.l} · ${(o.winPct * 100).toFixed(0)}% · ${fmtVal(Math.round(o.pf))} PF
+                <p class="mono text-[10px] text-slate-500">${o.dyn ? esc(o.dyn.team) + ' · ' : ''}Top Level ${o.topGames ? `${o.tw}-${o.tl} · ${(o.topPct * 100).toFixed(0)}%` : '—'} · all lvls ${o.w}-${o.l} · ${fmtVal(Math.round(o.pf))} PF
                 ${o.titles ? ` · <span class="text-yellow-400">${o.titles}× champion</span>` : ''}</p>
                 ${o.dyn ? badgesHTML(o.dyn, CHAMPION_TEAMS.includes(o.dyn.team), false) : ''}
             </div>
@@ -1097,6 +1147,88 @@ window.openOwner = id => {
         </table></div></div>
         ${o.dyn?.breakdown ? `<p class="mono text-[9px] text-slate-600 uppercase tracking-widest mt-3">D-Score ${o.dyn.score.toFixed(2)} · see Dynasty tab for breakdown</p>` : ''}`;
 };
+
+// ── RECORD WATCH: auto-computed record book from Sleeper history (Top Level) ──
+async function loadRecordBook() {
+    const box = () => document.getElementById('record-book');
+    if (!box()) return;
+    try {
+        const hist = await API.tierHistory('top');
+        const liveCtx = hist.some(s => !s.complete) ? await API.leagueContext('top') : null;
+        const games = [], seasonPts = [], seasonRecs = [], streaks = [];
+        for (const s of hist) {
+            const weekly = s.complete ? await API.seasonMatchups(s.leagueId)
+                : (liveCtx?.weeklyMatchups || []);
+            weekly.forEach((wk, i) => (wk || []).forEach(m => {
+                if (m.points > 0) {
+                    const t = s.teams.find(x => x.rosterId === m.roster_id);
+                    if (t) games.push({ pts: m.points, team: t.teamName, display: t.display, wk: i + 1, season: s.season, live: !s.complete });
+                }
+            }));
+            s.teams.forEach(t => {
+                const g = t.wins + t.losses + t.ties;
+                if (g > 0) {
+                    seasonPts.push({ team: t.teamName, display: t.display, fpts: t.fpts, season: s.season, live: !s.complete });
+                    seasonRecs.push({ team: t.teamName, display: t.display, wins: t.wins, losses: t.losses, pct: t.wins / g, season: s.season, live: !s.complete });
+                }
+                const best = Math.max(0, ...(t.weekLog || '').split(/[^W]+/).map(x => x.length));
+                if (best >= 3) streaks.push({ team: t.teamName, display: t.display, n: best, season: s.season, live: !s.complete });
+            });
+        }
+        if (!games.length) { box().innerHTML = errBox('No Top Level game history found.'); return; }
+        games.sort((a, b) => b.pts - a.pts);
+        seasonPts.sort((a, b) => b.fpts - a.fpts);
+        seasonRecs.sort((a, b) => b.pct - a.pct || b.wins - a.wins);
+        streaks.sort((a, b) => b.n - a.n);
+
+        const liveDot = e => e.live ? ' <span class="text-red-400" title="current season — still live">●</span>' : '';
+        const gameRows = games.slice(0, 10).map((g, i) => `
+            <div class="flex items-center gap-3 py-1.5 border-b border-white/5 last:border-0 text-sm">
+                <span class="mono text-[10px] w-5 ${i === 0 ? 'text-[#E8C547]' : 'text-slate-500'}">${i + 1}</span>
+                <span class="flex-1 truncate ${i === 0 ? 'font-bold' : ''}">${esc(g.team)}${liveDot(g)}</span>
+                <span class="mono text-[9px] text-slate-600">wk${g.wk} '${String(g.season).slice(-2)}</span>
+                <span class="mono text-sm ${i === 0 ? 'text-[#E8C547] font-bold' : 'text-slate-300'}">${g.pts.toFixed(2)}</span>
+            </div>`).join('');
+        const listCard = (title, icon, color, rows) => `
+            <div class="panel rounded-2xl p-5">
+                <p class="mono text-[9px] uppercase tracking-[0.25em] ${color} mb-3"><i class="fa-solid ${icon} mr-1.5"></i>${title}</p>${rows}
+            </div>`;
+        const miniRows = (list, fmt) => list.slice(0, 5).map((e, i) => `
+            <div class="flex items-center gap-3 py-1.5 border-b border-white/5 last:border-0 text-sm">
+                <span class="mono text-[10px] w-5 ${i === 0 ? 'text-[#E8C547]' : 'text-slate-500'}">${i + 1}</span>
+                <span class="flex-1 truncate ${i === 0 ? 'font-bold' : ''}">${esc(e.team)}${liveDot(e)}</span>
+                <span class="mono text-[9px] text-slate-600">'${String(e.season).slice(-2)}</span>
+                <span class="mono text-sm ${i === 0 ? 'text-[#E8C547] font-bold' : 'text-slate-300'}">${fmt(e)}</span>
+            </div>`).join('');
+
+        // threat watch: live-season entries ranking top 3 anywhere
+        const threats = [];
+        games.slice(0, 3).forEach((g, i) => { if (g.live) threats.push(`${g.team} sits #${i + 1} all-time in single-game scoring (${g.pts.toFixed(2)})`); });
+        streaks.slice(0, 3).forEach((s, i) => { if (s.live) threats.push(`${s.team}'s ${s.n}-game streak is #${i + 1} all-time`); });
+        seasonPts.slice(0, 3).forEach((s, i) => { if (s.live) threats.push(`${s.team} is pacing #${i + 1} all-time in season points`); });
+        const threatBox = threats.length ? `
+            <div class="panel-gold rounded-2xl p-4 mb-5 text-sm text-slate-300">
+                <p class="mono text-[9px] uppercase tracking-[0.3em] text-[#E8C547]/80 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Record Watch — history under threat</p>
+                ${threats.map(t => `<p class="py-0.5">· ${esc(t)}</p>`).join('')}
+            </div>` : '';
+
+        box().innerHTML = `
+            <h3 class="display text-xl uppercase mb-1 text-slate-300">The Record Book <span class="mono text-[9px] text-slate-600 not-italic tracking-widest ml-2">AUTO · TOP LEVEL</span></h3>
+            <p class="mono text-[9px] uppercase tracking-[0.25em] text-slate-600 mb-4">Computed live from every Sleeper box score · ● = current season, still moving</p>
+            ${threatBox}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                ${listCard('Top 10 Single-Game Scores', 'fa-fire', 'text-orange-400', gameRows)}
+                <div class="space-y-5">
+                    ${listCard('Longest Win Streaks (single season)', 'fa-bolt', 'text-emerald-400', miniRows(streaks, e => e.n + 'W'))}
+                    ${listCard('Best Season Point Totals', 'fa-calculator', 'text-sky-400', miniRows(seasonPts, e => e.fpts.toFixed(1)))}
+                    ${listCard('Best Season Records', 'fa-star', 'text-yellow-400', miniRows(seasonRecs, e => e.wins + '-' + e.losses))}
+                </div>
+            </div>`;
+    } catch (e) {
+        console.warn('record book failed', e);
+        if (box()) box().innerHTML = errBox('Could not compute the record book — Sleeper may be unreachable.');
+    }
+}
 
 async function renderLegacy(v) {
     const tab = APP.legacyTab;
@@ -1124,7 +1256,9 @@ async function renderLegacy(v) {
             <h3 class="display text-xl uppercase mb-4 text-slate-300">Hall of Fame</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">${hof}</div>
             <h3 class="display text-xl uppercase mb-4 text-slate-300">Permanent Records</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">${recs}</div>`;
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">${recs}</div>
+            <div id="record-book" class="mt-12">${spinner('Digging through the archives…')}</div>`;
+        loadRecordBook();
         return;
     }
 
@@ -1216,7 +1350,9 @@ window.addEventListener('scroll', () => {
 
 // ─── INIT ───────────────────────────────────────────────────────────────────
 window.onclick = e => { if (e.target.id === 'modal') closeModal(); };
-window.onload = () => {
+window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+window.onload = async () => {
     API.playerMap().catch(() => {}); // warm the cache
+    try { APP.sheetLive = await API.syncDynastyRanks(); } catch (e) { APP.sheetLive = false; }
     applyHash(true); // honors deep links, falls back to HQ
 };

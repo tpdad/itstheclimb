@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Endzone Run — It's the Climb Arcade</title>
+<meta name="description" content="Beat all 19 teams of the dynasty ladder. 4 downs to paydirt.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B0E14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Endzone Run">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,700;1,900&family=JetBrains+Mono:wght@400;700&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; }
+html, body { touch-action:manipulation; overscroll-behavior:none; }
+body { background:#0B0E14; color:#DCE2EA; font-family:'JetBrains Mono',monospace; min-height:100vh;
+       min-height:100dvh; display:flex; flex-direction:column; align-items:center; padding:12px;
+       padding-left:max(12px, env(safe-area-inset-left)); padding-right:max(12px, env(safe-area-inset-right)); }
+.display { font-family:'Archivo',sans-serif; font-weight:900; font-style:italic; letter-spacing:-0.02em; }
+header { width:100%; max-width:1024px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap; }
+h1 { font-size:20px; text-transform:uppercase; color:#fff; }
+h1 span { color:#E8C547; }
+header p { font-size:9px; text-transform:uppercase; letter-spacing:0.25em; color:#67707E; }
+#game-root { width:100%; max-width:1024px; }
+.pill { font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.12em;
+        padding:7px 14px; border-radius:999px; border:1px solid rgba(255,255,255,0.15);
+        color:#98A2B3; background:rgba(255,255,255,0.02); cursor:pointer; display:inline-flex; align-items:center; gap:4px; }
+.pill:hover { border-color:#E8C547; color:#E8C547; }
+.pill-active { border-color:#E8C547; color:#E8C547; background:rgba(232,197,71,0.08); }
+.mono { font-family:'JetBrains Mono',monospace; }
+#install-btn { display:none; border-color:#34D399; color:#34D399; }
+#ios-hint { display:none; width:100%; max-width:1024px; margin-top:8px; font-size:10px; color:#8B94A3;
+            background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:9px 12px; }
+footer { margin-top:10px; font-size:9px; text-transform:uppercase; letter-spacing:0.25em; color:#3c434e; text-align:center; }
+</style>
+</head>
+<body>
+<header>
+    <div>
+        <h1 class="display">Endzone <span>Run</span></h1>
+        <p>It's the Climb Arcade</p>
+    </div>
+    <button id="install-btn" class="pill">&#128241; Add to home screen</button>
+</header>
+<div id="game-root"></div>
+<div id="ios-hint">&#128241; <b>Play it like an app:</b> tap the Share button, then "Add to Home Screen" — the game installs by itself, fullscreen, no browser bars.</div>
+<footer>4 downs to paydirt &middot; best fullscreen on a landscape phone</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script src="js/game.js"></script>
+<script>
+ARCADE.mount(document.getElementById('game-root'));
+
+// no long-press menus / drag ghosts during play
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());
+// block double-tap zoom on iOS (taps are the game's whole control scheme)
+let lastTouch = 0;
+document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTouch < 350) e.preventDefault();
+    lastTouch = now;
+}, { passive: false });
+
+// install prompt — Android/Chrome
+let deferredPrompt = null;
+const installBtn = document.getElementById('install-btn');
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'inline-flex';
+});
+installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+});
+window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
+// iOS: no beforeinstallprompt — show how-to once, outside the app
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+if (isIOS && !standalone) document.getElementById('ios-hint').style.display = 'block';
+// offline support
+if ('serviceWorker' in navigator && location.protocol !== 'file:')
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

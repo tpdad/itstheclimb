@@ -229,6 +229,28 @@ function previewHTML(ctx, fc, tier, cfg) {
         <p class="mono text-[9px] text-slate-600 uppercase tracking-widest mt-3">Market title share = team value ÷ league value · FantasyCalc dynasty SF 0.5 PPR · refreshed 6h</p>`;
 }
 
+// ── SHARE: weekly recap as group-chat text ──────────────────────────────────
+window.copyWeeklyRecap = async () => {
+    const tier = APP.recapTier || 'top', cfg = LEAGUE_MAP[tier];
+    const ctx = await API.leagueContext(tier);
+    if (!ctx.completedWeeks) return;
+    const wk = Math.min(APP.recapWeek || ctx.completedWeeks, ctx.completedWeeks);
+    const r = computeWeeklyRecap(ctx, wk);
+    if (!r) { toast('No completed games for that week yet.'); return; }
+    const L = [`🏔️ IT'S THE CLIMB — ${cfg.name} · Week ${wk} Recap`, ''];
+    L.push(`⛰️ Climber of the Week: ${r.high.t?.name} — ${r.high.m.points.toFixed(2)} pts`);
+    L.push(`🕳️ Basecamp Dweller: ${r.low.t?.name} — ${r.low.m.points.toFixed(2)} pts`);
+    L.push(`📸 Photo Finish: ${r.closest.wt?.name} edged ${r.closest.lt?.name} by ${r.closest.margin.toFixed(2)}`);
+    L.push(`💥 The Avalanche: ${r.blowout.wt?.name} buried ${r.blowout.lt?.name} by ${r.blowout.margin.toFixed(2)}`);
+    if (r.upset) L.push(`⚡ Upset of the Week: #${r.upset.wt.standing} ${r.upset.wt.name} toppled #${r.upset.lt.standing} ${r.upset.lt.name}`);
+    if (r.bench) L.push(`🛋️ Left on the Bench: ${r.bench.t?.name} — ${r.bench.left.toFixed(1)} pts never saw the field`);
+    L.push('', 'Final scores:');
+    r.games.forEach(g => L.push(`  ${g.wt?.name} ${g.w.points.toFixed(1)} — ${g.l.points.toFixed(1)} ${g.lt?.name}`));
+    L.push('', `Full recap → https://tpdad.github.io/itstheclimb/#recap/weekly`);
+    try { await navigator.clipboard.writeText(L.join('\n')); toast('Recap copied — paste it in the chat'); }
+    catch (e) { toast('Copy blocked by browser — select and copy manually.'); }
+};
+
 // ── SECTION ROUTER ──────────────────────────────────────────────────────────
 async function renderRecap(v) {
     v.innerHTML = spinner('Warming up the press box…');
@@ -242,9 +264,9 @@ async function renderRecap(v) {
     APP.recapTab = sub;
 
     const subTabs = `<div class="flex gap-2 mb-6 flex-wrap">
-        <button onclick="APP.recapTab='preview';render()" class="pill ${sub === 'preview' ? 'pill-active' : ''}"><i class="fa-solid fa-binoculars mr-1"></i>${SEASON} Preview</button>
-        <button onclick="APP.recapTab='weekly';render()" class="pill ${sub === 'weekly' ? 'pill-active' : ''}" ${weeklyOK ? '' : 'style="opacity:0.4"'}><i class="fa-solid fa-newspaper mr-1"></i>Weekly</button>
-        <button onclick="APP.recapTab='season';render()" class="pill ${sub === 'season' ? 'pill-active' : ''}"><i class="fa-solid fa-book-bookmark mr-1"></i>Season Wraps</button>
+        <button onclick="go('recap','preview')" class="pill ${sub === 'preview' ? 'pill-active' : ''}"><i class="fa-solid fa-binoculars mr-1"></i>${SEASON} Preview</button>
+        <button onclick="go('recap','weekly')" class="pill ${sub === 'weekly' ? 'pill-active' : ''}" ${weeklyOK ? '' : 'style="opacity:0.4"'}><i class="fa-solid fa-newspaper mr-1"></i>Weekly</button>
+        <button onclick="go('recap','season')" class="pill ${sub === 'season' ? 'pill-active' : ''}"><i class="fa-solid fa-book-bookmark mr-1"></i>Season Wraps</button>
     </div>`;
     const tierTabs = `<div class="flex gap-2 mb-6">${TIER_ORDER.map(t => `
         <button onclick="APP.recapTier='${t}';render()" class="pill ${t === tier ? 'pill-active' : ''}">${esc(LEAGUE_MAP[t].name)}</button>`).join('')}</div>`;
@@ -256,9 +278,11 @@ async function renderRecap(v) {
             return;
         }
         const wk = Math.min(APP.recapWeek || ctx.completedWeeks, ctx.completedWeeks);
-        const wkSel = `<select onchange="APP.recapWeek=+this.value;render()" class="input-dark mb-6">
+        const wkSel = `<div class="flex flex-wrap items-center gap-3 mb-6">
+            <select onchange="APP.recapWeek=+this.value;render()" class="input-dark">
             ${Array.from({ length: ctx.completedWeeks }, (_, i) => i + 1).reverse().map(w =>
-                `<option value="${w}" ${w === wk ? 'selected' : ''}>Week ${w}</option>`).join('')}</select>`;
+                `<option value="${w}" ${w === wk ? 'selected' : ''}>Week ${w}</option>`).join('')}</select>
+            <button onclick="copyWeeklyRecap()" class="pill"><i class="fa-solid fa-copy mr-1"></i>Copy for group chat</button></div>`;
         v.innerHTML = `${sectionHead('The Press Box', `WEEK ${wk} <span class="grad-gold">RECAP</span>`,
             `${esc(cfg.name)} · everything that happened on the mountain`)}${subTabs}${tierTabs}${wkSel}
             ${weeklyRecapHTML(ctx, wk, cfg)}`;

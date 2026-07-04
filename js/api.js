@@ -210,7 +210,111 @@ const API = (() => {
         return { top: a, mid: b, cellar: c };
     }
 
+    // ── commissioner's Google Sheet — live dynasty rankings source ──────────
+    // Dan edits the sheet; site syncs on load (30-min cache). If Google is
+    // unreachable or the format breaks, the baked-in DYNASTY_RANKS in
+    // constants.js remain as fallback. Matching is by normalized team name.
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/115A7TWB_TzbAz_B4qykuR1ZstlSsAMQsjtYwlNQ6cOo/gviz/tq?tqx=out:csv&gid=0';
+
+    function parseCSV(text) {
+        const rows = []; let row = [], cur = '', q = false;
+        for (let i = 0; i < text.length; i++) {
+            const c = text[i];
+            if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+            else if (c === '"') q = true;
+            else if (c === ',') { row.push(cur); cur = ''; }
+            else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+            else if (c !== '\r') cur += c;
+        }
+        if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+        return rows;
+    }
+
+    // header fragments → breakdown keys. Order matters: more specific first.
+    const SHEET_COLS = [
+        ['score',           'Dynasty Ranking Score'],
+        ['winPctCol',       'Win %'],
+        ['returnFromReleg', 'Return from Relegation'],
+        ['escape',          'Escape Relegation'],
+        ['champ',           'Championships'],
+        ['secondPlace',     'Second Place'],
+        ['thirdPlace',      'Third Place'],
+        ['ptsFirst',        'First in Total Points'],
+        ['ptsSecond',       'Second In Total Points'],
+        ['playoffs',        'Make Playoffs'],
+        ['divWin',          'Win Division'],
+        ['playoffWin',      'Playoff Win'],
+        ['b2b',             'Back to Back'],
+        ['bottom4',         'Bottom 4'],
+        ['ptsLast',         'Last in Points'],
+        ['relegated',       'Relegated'],
+        ['lvl2Pts',         'Level 2 Point Champ'],
+        ['lvl2Champ',       'Level 2 Champion'],
+        ['lvl3Pts',         'Level 3 Point Champion'],
+        ['lvl3Champ',       'Level 3 Champion'],
+        ['permRecordBonus', 'Permanent Record Holder'],
+        ['recordBonus',     'Record Holder Bonus'],
+        ['bonusText',       'Record/Bonus'],
+        ['seasonsTop',      'Seasons in Top Level'],
+        ['enteredNum',      'Season entered top level']
+    ];
+    const SHEET_META_KEYS = ['score', 'winPctCol', 'bonusText', 'enteredNum'];
+
+    let _sheetSync = null; // memoized promise → true (live) / false (fallback)
+    function syncDynastyRanks() {
+        if (_sheetSync) return _sheetSync;
+        _sheetSync = (async () => {
+            const text = await (async () => {
+                const key = 'c_sheet_ranks';
+                try {
+                    const hit = localStorage.getItem(key);
+                    if (hit) { const { t, d } = JSON.parse(hit); if (Date.now() - t < 30 * MIN) return d; }
+                } catch (e) { /* ignore */ }
+                const res = await fetch(SHEET_CSV);
+                if (!res.ok) throw new Error('sheet ' + res.status);
+                const d = await res.text();
+                if (!d || d.length < 100) throw new Error('sheet empty');
+                try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), d })); } catch (e) { /* quota */ }
+                return d;
+            })();
+            const rows = parseCSV(text);
+            const headers = rows[0] || [];
+            const colFor = {};
+            headers.forEach((h, i) => {
+                for (const [k, frag] of SHEET_COLS)
+                    if (colFor[k] === undefined && h.includes(frag)) { colFor[k] = i; return; }
+            });
+            const norm = s => (s || '').toLowerCase().trim().replace(/[\u2018\u2019\u201A\u201B\u2032\u2035']/g, "'");
+            let matched = 0;
+            rows.slice(1).forEach(r => {
+                const team = (r[0] || '').trim(); if (!team) return;
+                const entry = DYNASTY_RANKS.find(d => norm(d.team) === norm(team));
+                if (!entry) return;
+                matched++;
+                const num = k => { const n = parseFloat(r[colFor[k]]); return isNaN(n) ? null : n; };
+                if (num('score') !== null) entry.score = num('score');
+                if (num('winPctCol') !== null) entry.winPct = Math.round(num('winPctCol')) + '%';
+                if (colFor.bonusText !== undefined) entry.bonus = (r[colFor.bonusText] || '').trim() || '-';
+                if (num('enteredNum') !== null && num('enteredNum') >= 1) entry.entered = 2022 + Math.round(num('enteredNum'));
+                entry.breakdown = entry.breakdown || {};
+                SHEET_COLS.forEach(([k]) => {
+                    if (SHEET_META_KEYS.includes(k) || colFor[k] === undefined) return;
+                    const v = num(k);
+                    if (v !== null && v !== 0) entry.breakdown[k] = v; else delete entry.breakdown[k];
+                });
+                if (num('winPctCol') !== null) entry.breakdown.winPct = Math.round(num('winPctCol'));
+            });
+            if (!matched) throw new Error('no team names matched');
+            const top = [...DYNASTY_RANKS].sort((a, b) => b.score - a.score)[0];
+            DYNASTY_STATUS.leader = top.team;
+            DYNASTY_STATUS.leaderScore = top.score;
+            return true;
+        })().catch(e => { console.warn('sheet sync failed — using baked-in rankings', e); return false; });
+        return _sheetSync;
+    }
+
     return { nflState, playerMap, league, users, rosters, matchups, tradedPicks,
              winnersBracket, allTransactions, allMatchups, trending, fcValues,
-             leagueContext, allLeagueContexts, tierHistory, allHistory, seasonMatchups };
+             leagueContext, allLeagueContexts, tierHistory, allHistory, seasonMatchups,
+             syncDynastyRanks };
 })();

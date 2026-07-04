@@ -3,9 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>It's the Climb | DB4 Sports Official Portal</title>
+    <title>It's the Climb | ITC League — DB4 Sports Official Portal</title>
     <meta name="description" content="It's the Climb — 19-team fantasy football dynasty league. Three tiers. One summit.">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%230B0E14'/%3E%3Cg transform='rotate(-16 34 16)'%3E%3Cellipse cx='34' cy='16' rx='8' ry='5.2' fill='%23B06A39'/%3E%3Cpath d='M29.5 16 H38.5 M31.3 14.6 V17.4 M33.1 14.6 V17.4 M34.9 14.6 V17.4 M36.7 14.6 V17.4' stroke='%23F2E4C8' stroke-width='1'/%3E%3C/g%3E%3Cpath d='M3 39 L13 26 L19 32 L26 23 L34 32 L40 26 L45 39 Z' fill='%23AEB8C4' opacity='0.28'/%3E%3Cpath d='M8 39 L21.5 15 L35 39 Z' fill='%23E8C547'/%3E%3Cpath d='M21.5 15 L25.3 21.8 L23.2 21 L21.6 22.4 L19.7 21 L17.8 21.8 Z' fill='%23F7F2E4'/%3E%3Cpath d='M21.5 15 V8.5' stroke='%23F7F2E4' stroke-width='1.3'/%3E%3Cpath d='M21.5 8.5 L27 10.4 L21.5 12.3 Z' fill='%23E8C547'/%3E%3Cpath d='M3 39 H45' stroke='%23C97B4A' stroke-width='1.6'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" href="icons/favicon-64.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#0B0E14">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="It's the Climb">
+    <meta property="og:title" content="It's the Climb | ITC League">
+    <meta property="og:description" content="19-team fantasy football dynasty league. Three tiers. One summit. Live standings, dynasty rankings, trade lab & more.">
+    <meta property="og:url" content="https://tpdad.github.io/itstheclimb/">
+    <meta property="og:image" content="https://tpdad.github.io/itstheclimb/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="It's the Climb | ITC League">
+    <meta name="twitter:description" content="19-team fantasy football dynasty league. Three tiers. One summit.">
+    <meta name="twitter:image" content="https://tpdad.github.io/itstheclimb/og.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -68,7 +83,7 @@
         .glass { background: rgba(11,14,20,0.82); backdrop-filter: blur(14px); }
         [data-nav] {
             font-family: 'Archivo', sans-serif; font-weight: 700;
-            font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+            font-size: 11px; letter-spacing: 0.11em; text-transform: uppercase;
             color: #8B94A3; padding: 8px 2px; position: relative;
             transition: color 0.2s; white-space: nowrap;
         }
@@ -194,45 +209,18 @@
 
     <!-- ─── HEADER ─────────────────────────────────────────────────────── -->
     <nav class="glass sticky top-0 z-50 border-b border-white/5">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
             <!-- mark -->
             <button onclick="go('hq')" class="flex items-center gap-3 flex-shrink-0 text-left">
-                <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="lgGold" x1="14" y1="12" x2="34" y2="40" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#F5DC7E"/><stop offset="55%" stop-color="#E8C547"/><stop offset="100%" stop-color="#9A7416"/>
-                        </linearGradient>
-                        <linearGradient id="lgBall" x1="26" y1="11" x2="42" y2="22" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#D98B57"/><stop offset="100%" stop-color="#9C5B2F"/>
-                        </linearGradient>
-                    </defs>
-                    <rect width="48" height="48" rx="11" fill="#0B0E14"/>
-                    <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="10.25" stroke="#E8C547" stroke-opacity="0.4" stroke-width="1.5"/>
-                    <!-- football rising like a sun -->
-                    <g transform="rotate(-16 34 16)">
-                        <ellipse cx="34" cy="16" rx="8" ry="5.2" fill="url(#lgBall)"/>
-                        <path d="M29.5 16 H38.5" stroke="#F2E4C8" stroke-width="1.1" stroke-linecap="round"/>
-                        <path d="M31.3 14.6 V17.4 M33.1 14.6 V17.4 M34.9 14.6 V17.4 M36.7 14.6 V17.4" stroke="#F2E4C8" stroke-width="0.9" stroke-linecap="round"/>
-                    </g>
-                    <!-- back ridge (silver) -->
-                    <path d="M3 39 L13 26 L19 32 L26 23 L34 32 L40 26 L45 39 Z" fill="#AEB8C4" opacity="0.28"/>
-                    <!-- summit peak (gold) -->
-                    <path d="M8 39 L21.5 15 L35 39 Z" fill="url(#lgGold)"/>
-                    <path d="M21.5 15 L25.3 21.8 L23.2 21 L21.6 22.4 L19.7 21 L17.8 21.8 Z" fill="#F7F2E4"/>
-                    <!-- summit flag -->
-                    <path d="M21.5 15 V8.5" stroke="#F7F2E4" stroke-width="1.3" stroke-linecap="round"/>
-                    <path d="M21.5 8.5 L27 10.4 L21.5 12.3 Z" fill="#E8C547"/>
-                    <!-- basecamp line -->
-                    <path d="M3 39 H45" stroke="#C97B4A" stroke-width="1.6" opacity="0.85"/>
-                </svg>
-                <div class="hidden sm:block">
-                    <h1 class="display text-xl uppercase leading-none"><span class="text-white">It's the</span> <span class="grad-gold">Climb</span></h1>
-                    <p class="mono text-[7.5px] uppercase tracking-[0.3em] text-slate-600 mt-1">DB4 Sports · Dynasty · Est. 2023</p>
+                <span class="display text-[32px] leading-none" style="color:#E8C547;text-shadow:2px 2px 0 #0B0E14,3.5px 3.5px 0 #C97B4A">ITC</span>
+                <div class="hidden sm:block border-l border-white/10 pl-3">
+                    <h1 class="display text-sm uppercase leading-none text-white">It's the Climb</h1>
+                    <p class="mono text-[7.5px] uppercase tracking-[0.3em] text-slate-600 mt-1">League · DB4 Sports · Est. 2023</p>
                 </div>
             </button>
 
             <!-- desktop nav -->
-            <div id="desktop-nav" class="flex items-center gap-5 lg:gap-7 overflow-x-auto">
+            <div id="desktop-nav" class="flex items-center flex-wrap gap-x-4 lg:gap-x-6 gap-y-0">
                 <button data-nav="hq" onclick="go('hq')">HQ</button>
                 <button data-nav="leagues" onclick="go('leagues')">Leagues</button>
                 <button data-nav="recap" onclick="go('recap')">Recap</button>
@@ -240,6 +228,7 @@
                 <button data-nav="wire" onclick="go('wire')">The Wire</button>
                 <button data-nav="analytics" onclick="go('analytics')">Analytics</button>
                 <button data-nav="lab" onclick="go('lab')">Trade Lab</button>
+                <button data-nav="arcade" onclick="go('arcade')">Arcade</button>
                 <button data-nav="legacy" onclick="go('legacy')">Legacy</button>
             </div>
         </div>
@@ -254,6 +243,7 @@
         <button data-nav="wire" onclick="go('wire')"><i class="fa-solid fa-tower-broadcast"></i>Wire</button>
         <button data-nav="analytics" onclick="go('analytics')"><i class="fa-solid fa-chart-line"></i>Stats</button>
         <button data-nav="lab" onclick="go('lab')"><i class="fa-solid fa-flask"></i>Lab</button>
+        <button data-nav="arcade" onclick="go('arcade')"><i class="fa-solid fa-gamepad"></i>Arcade</button>
         <button data-nav="legacy" onclick="go('legacy')"><i class="fa-solid fa-book"></i>Legacy</button>
     </div>
 
@@ -277,10 +267,10 @@
         </div>
     </div>
 
-    <script src="js/constants.js?v=2"></script>
-    <script src="js/api.js?v=2"></script>
-    <script src="js/dscore.js?v=2"></script>
-    <script src="js/recap.js?v=2"></script>
-    <script src="js/app.js?v=2"></script>
+    <script src="js/constants.js?v=6"></script>
+    <script src="js/api.js?v=6"></script>
+    <script src="js/dscore.js?v=6"></script>
+    <script src="js/recap.js?v=6"></script>
+    <script src="js/app.js?v=6"></script>
 </body>
 </html>

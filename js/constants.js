@@ -20,9 +20,10 @@ const FC_PARAMS = { isDynasty: true, numQbs: 2, numTeams: 12, ppr: 0.5 };
 // ─── PERMANENT RECORDS ───────────────────────────────────────────────────────
 const DYNASTY_RECORDS = [
     { label: 'Single Game High Score',   owner: 'Point Pleasant Mothmen',  val: '234.6',   icon: 'fa-fire',       color: 'text-orange-500' },
-    { label: 'Longest Winning Streak',   owner: 'Southie Thunder Buddies', val: '14 Games', icon: 'fa-bolt',       color: 'text-emerald-400' },
+    { label: 'Longest Winning Streak',   owner: 'Southie Thunder Buddies', val: '13 Games', icon: 'fa-bolt',       color: 'text-emerald-400' },
     { label: 'Single Season W/L',        owner: 'Southie Thunder Buddies', val: '15-1',     icon: 'fa-star',       color: 'text-yellow-400' },
-    { label: 'Season Long High Score',   owner: 'Southie Thunder Buddies', val: '2442.99',  icon: 'fa-calculator', color: 'text-sky-400' }
+    { label: 'Season Long High Score',   owner: 'Southie Thunder Buddies', val: '2442.99',  icon: 'fa-calculator', color: 'text-sky-400' },
+    { label: 'Division Titles (2025)',   owner: 'Southie TB · Bikini Bottom AB', val: 'Co-Held', icon: 'fa-crown',      color: 'text-purple-400' }
 ];
 
 // ─── HALL OF FAME / CHAMPIONS ────────────────────────────────────────────────
@@ -88,7 +89,7 @@ const DYNASTY_STATUS = {
 // ─── BADGES, IMMUNITY, RELEGATION ────────────────────────────────────────────
 const CHAMPION_TEAMS = ['Southie Thunder Buddies', 'Driftwood Broncos', 'Lake Champlain Champs'];
 const IMMUNITY_TEAMS_DATA = [
-    { team: 'Southie Thunder Buddies', owner: 'philosopherdan', expires: 2026, reason: '2025 Champion' }
+    { team: 'Southie Thunder Buddies', owner: 'philosopherdan', expires: 2026, reason: '2025 Champion · also holds 2 no-expiry cards (Commissioner, 20-team finish)' }
 ];
 const RELEGATION_RISK_COUNT = { top: 2, mid: 2, cellar: 0 };
 const PROMOTION_SPOT_COUNT = { top: 0, mid: 2, cellar: 2 };
@@ -119,7 +120,14 @@ const DSCORE_LINE_ITEMS = [
     { key: 'bottom4',         label: 'Bottom 4 Finish',     pts: '-50/ea'  },
     { key: 'permRecordBonus', label: 'Perm. Record Bonus',  pts: 'static'  },
     { key: 'recordBonus',     label: 'Record Holder Bonus', pts: 'static'  },
-    { key: 'lvl2Champ',       label: 'Level 2 Champion',    pts: '+20/ea'  }
+    { key: 'lvl2Champ',       label: 'Level 2 Champion',    pts: '+20/ea'  },
+    { key: 'lvl2Pts',         label: 'Level 2 Point Champ', pts: '+15/ea'  },
+    { key: 'lvl3Champ',       label: 'Level 3 Champion',    pts: '+10/ea'  },
+    { key: 'lvl3Pts',         label: 'Level 3 Point Champ', pts: '+5/ea'   },
+    { key: 'ptsLast',         label: 'Last in Points',      pts: '-10/ea'  },
+    { key: 'escape',          label: 'Escaped Relegation',  pts: '+75/ea'  },
+    { key: 'returnFromReleg', label: 'Return from Releg.',  pts: '+100/ea' },
+    { key: 'b2b',             label: 'Back-to-Back Champ',  pts: '+25/ea'  }
 ];
 
 // ─── SEASON HISTORY TIMELINE ─────────────────────────────────────────────────
@@ -128,10 +136,10 @@ const SEASON_HISTORY = [
       facts: ['12 OG Founding Teams', 'First season of 1st Dynasty'],
       events: ['League founded by Commissioner', '12-team Top Level only', 'Snake startup draft', 'Constitution Rev 2023.1', '"Love of the game" model'] },
     { season: 2024, num: 2, title: 'The Expansion', champ: 'Driftwood Broncos', jacket: 'Green Jacket · Shane',
-      facts: ['14-game win streak set', 'Mid League & Cellar added'],
+      facts: ['10-game win streak set', 'Mid League & Cellar added'],
       events: ['Promotion/Relegation debuts', '3-tier structure established', 'Dynasty lead building', 'Amendment IX enacted', 'New owners join'] },
     { season: 2025, num: 3, title: 'The Reckoning', champ: 'Southie Thunder Buddies', jacket: 'Green Jacket · Dan',
-      facts: ['234.6 all-time high', '15-1 season record', 'Amendment X enacted'],
+      facts: ['234.6 all-time high', '15-1 record · 13-game streak', 'Amendment X enacted'],
       events: ['New owners join', 'Amendment X enacted', 'Season record set', 'Returning champions', 'Relegation updates'] },
     { season: 2026, num: 4, title: 'The Current Season', champ: null, jacket: null, live: true,
       facts: ['Dynasty Leader: Southie TB', 'New owners joined', 'Constitution Rev 2026.1'],
@@ -147,7 +155,7 @@ const RETIRED_OWNERS = [
 ];
 
 // ─── LEAGUE CONSTITUTION & AMENDMENTS ────────────────────────────────────────
-const CONSTITUTION_META = { revision: '2026.1', commissioner: 'Dan Frank' };
+const CONSTITUTION_META = { revision: '2026.2', commissioner: 'Dan Frank' };
 const CONSTITUTION = [
     { id: 'art1', type: 'article', title: 'Article I: Governing Body', content: `The league commissioner is Daniel Frank. Commissioner has autonomous rule and final say on all league matters. No decision can be overruled by democratic vote. Appeals are heard by the office of the commissioner — there is no appeal of the appeal. The commissioner serves until bribed sufficiently or resigned voluntarily (triggering a democratic election).` },
     { id: 'art2', type: 'article', title: 'Article II: League Setup', content: `It's the Climb is a blend of dynasty, keeper, and relegation league. Three tiers: Top, Mid, and Cellar. Each league has two divisions. Teams play divisional opponents twice and non-divisional opponents once. No fees currently — "love of the game" model. Potential for more levels in future years.` },
@@ -157,13 +165,13 @@ const CONSTITUTION = [
     { id: 'art6', type: 'article', title: 'Article VI: Waivers', content: `Free agency opens immediately after the draft. Standard Sleeper waiver priority (claim = move to bottom). No acquisition limit. Teams eliminated from playoffs cannot pick up players, except for lineup emergencies or if still fighting relegation.` },
     { id: 'art7', type: 'article', title: 'Article VII: Trades', content: `Trades open after championship game, close near start of final regular season week. No eliminated team may trade after Week 12 (eliminated teams may trade with each other). No review period — integrity system. Collusion = commissioner review. Lopsided trades are allowed but subject to public shaming. Pick trading: only rounds 1–3 during season. No draft pick trading below Top Level.` },
     { id: 'art8', type: 'article', title: 'Article VIII: Regular Season', content: `Regular season runs through NFL Week 14. Auto-generated schedule via Sleeper. All teams must field valid lineups. Lineups lock at individual game time. No tiebreaker settings — fractional scoring prevents most ties.` },
-    { id: 'art9', type: 'article', title: 'Article IX: Mid & Cellar Leagues', content: `Simpler rules: 18 keepers with no restrictions, no force drops, no "too many good players" rule, no draft pick trading, no dynasty ranking tracking. Designed to accommodate high turnover at lower levels.` },
+    { id: 'art9', type: 'article', title: 'Article IX: Mid & Cellar Leagues', content: `Simpler rules: 18 keepers in the Mid League, 7 in the Cellar (Rev 2026.2), with no restrictions. No force drops, no "too many good players" rule, no draft pick trading, no dynasty ranking or official all-time record tracking — the Top Level is the league of record. Designed to accommodate high turnover at lower levels.` },
     { id: 'art10', type: 'article', title: 'Article X: Playoffs & First Place', content: `6-team playoffs. Division winners get first-round bye. 4 remaining spots by record. Top scorer outside top 6 by record bumps the 6th-place team. Playoffs in NFL Weeks 15–17. Champion wins the It's the Climb Trophy + immunity from next season's relegation. Back-to-back champion earns a "get out of relegation" card usable anytime.` },
     { id: 'art11', type: 'article', title: 'Article XI: Promotion & Relegation', content: `4 teams typically relegated/promoted per season (minimum 2). Retired/banned teams relegated first. Complex relegation playoff spanning Weeks 15–17 involving seeds 1–2 (protection format) and bottom 4 head-to-head. Week 17 survival requires outscoring 6 teams. Immunity teams create bracket adjustments. Commissioner has full discretion.` },
     { id: 'art12', type: 'article', title: 'Article XII: Keepers', content: `18 players can be kept. Non-retained players enter the draft pool. Keeper deadline is typically around the NFL Draft. No kickers or DSTs may be kept. See Amendments IV & V for additional rules.` },
     { id: 'art13', type: 'article', title: 'Article XIII: League Owners', content: `Active Top Level: Dan (STB), Dylan (LCC), Mark (NEB), Sam (BBAB), Kevin (TCWM), Brian (MLB), Christian (WD), Shane (DB), Curtis (PPM), CellyL77 (MMK), cbabybell (LSL), DynastyGhoul (NYRH). Relegated: Plak13, SteaminWillieBeamens, SquirtleSquad187, AidanWhite234, ryguy5188, Lokisam. Retired: Robert (Honorable), Steve (Honorable), Danny (OTH), LP (OTH), RWeir (OTH).` },
     { id: 'amend1', type: 'amendment', title: 'Amendment I: Dynasty Rankings', content: `Per-season scoring: Championship +100, 2nd Place +50, 3rd Place +25, Make Playoffs +25, Playoff Win +20, Division Win +50, Points Leader +50, 2nd in Points +25, Bottom 4 -50, Last in Points -10, Escape Relegation +75, Return from Relegation +100, Relegation -25, Back-to-Back Champ +25. Added points: Top Level season +10, Level 2 Champ +20, Level 3 Champ +10, Record Holder +25 (active) / +5 (lost). Win % × 1 averaged per season. Dynasty Rank #1 earns relegation protection and first waiver priority.` },
-    { id: 'amend2', type: 'amendment', title: 'Amendment II: Total Victory (Dynasty Victor)', content: `The Dynasty Rankings leader at the end of each "draft cycle" is crowned Dynasty Victor. The time period is named after them (e.g., "The [Name] Dynasty"). Perks: official recognition, trophy/ring, bonus points in next dynasty, immunity from relegation in following draft cycle, can never drop below Level 2. 2nd and 3rd place earn 2 seasons immunity in new draft cycle.` },
+    { id: 'amend2', type: 'amendment', title: 'Amendment II: Total Victory (Dynasty Victor)', content: `The Dynasty Rankings leader at the end of each "draft cycle" is crowned Dynasty Victor. The time period is named after them (e.g., "The [Name] Dynasty"). Perks: official recognition, trophy/ring, bonus points in next dynasty, immunity from relegation in following draft cycle, can never drop below Level 2, and the #1 pick in both the startup and rookie drafts of the reset season (Rev 2026.2). 2nd and 3rd place earn 2 seasons immunity in new draft cycle.` },
     { id: 'amend3', type: 'amendment', title: 'Amendment III: All Good Things Come to an End', content: `Redraft triggers: (1) One team wins more than half the championships after Year 4 + majority vote, (2) Two teams hold 6 combined championships + majority vote, (3) Season 10 vote, (4) Previously relegated team wins after Year 5 + 5-vote majority, (5) Promoted team wins in first season after Year 7 + 5-vote majority, (6) New winner after Year 10 — automatic redraft, (7) Team sweeps all three levels. Redraft resets dynasty rankings with carry-over bonuses (50/40/35… to last).` },
     { id: 'amend4', type: 'amendment', title: 'Amendment IV: Keeping it Interesting', content: `Force-drop system based on season finish. Championship finalists: 12pts to drop, 2nd round playoff losers: 10pts, 1st round playoff losers: 8pts, others: 6pts. Player tier points: Tier 1 = 10pts, Tier 2 = 8pts … Tier 9 = 1pt. Draft pick credits toward drops: 1st = 6pts, 2nd = 4pts, 3rd = 2pts. Teams without 8 tiered players use top 8 with untiered = 1pt each.` },
     { id: 'amend5', type: 'amendment', title: 'Amendment V: Keepers & Draft (TMGP)', content: `"Too Many Good Players" defined as: 2+ Tier 1 RBs/WRs/QBs/TEs, 3+ Tier 2 RBs/WRs/QBs, or 4+ Tier 3 RBs/WRs/QBs. Forfeits top draft pick + possible luxury tax. Compensatory picks awarded for voluntarily dropping elite players (Tier 1 RB/WR → 1st rounder, etc.). Top pick locks at offseason start.` },
